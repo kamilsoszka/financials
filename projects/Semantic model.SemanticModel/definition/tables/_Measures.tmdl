@@ -1,0 +1,79 @@
+/// Parameter table for dynamic measure selection - Used in slicers to allow users to switch between different metrics (Sales, Profit, COGS, etc.)
+table _Measures
+	lineageTag: 7c03b125-e411-4598-a5da-c48192774f1b
+
+	/// Dynamic measure that switches based on user selection
+	measure 'Dynamic Measure' =
+			
+			/* ====================================================================
+			   MEASURE: Measure
+			   PURPOSE: Dynamic measure that switches based on user selection
+			   LOGIC: Returns the appropriate measure value based on what's
+			          selected in the _Measures slicer. Enables dynamic visuals
+			          that respond to user choice
+			   USAGE: Central measure for dynamic reporting where users can
+			          switch between different metrics
+			   ==================================================================== */
+			-- Get the currently selected measure from slicer
+			VAR SelectedMeasureName =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Return the appropriate measure based on selection
+			VAR MeasureValue =
+			    SWITCH (
+			        TRUE (),
+			        SelectedMeasureName = "COGS", [COGS],
+			        SelectedMeasureName = "Gross Sales", [Gross Sales],
+			        SelectedMeasureName = "Profit", [Profit],
+			        SelectedMeasureName = "Sales", [Sales],
+			        SelectedMeasureName = "Units Sold", [Units Sold]
+			    )
+			RETURN
+			    MeasureValue
+		displayFolder: 🔧 Dynamic Calculations
+		lineageTag: b9ea84df-a530-4c5e-88a6-2d342fcf6b7e
+
+		formatStringDefinition =
+				VAR CurrentValue = SELECTEDMEASURE()
+				RETURN
+				    SWITCH (
+				        TRUE (),
+				        // Special cases to force K and M in the sample report
+				        CurrentValue <= 1E3, "#,0.00",
+				        CurrentValue <= 1E6, "#,0,.00 K",
+				        CurrentValue <= 1E9, "#,0,,.00 M",
+				        CurrentValue <= 1E12, "#,0,,,.00 G"
+				    )
+
+	column Value1
+		formatString: 0
+		lineageTag: 9bb96430-3b70-4865-82b1-235f382a3081
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value1]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value2
+		lineageTag: 0541870b-9f77-4d50-86f7-1833bb98e44c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value2]
+		sortByColumn: Value1
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = calculated
+		mode: import
+		source =
+				
+				// Parameter table for dynamic measure selection
+				// Format: (SortOrder, MeasureName)
+				{
+				    ( 1, "Gross Sales" ),  // Total sales before deductions
+				    ( 2, "COGS" ),         // Cost of Goods Sold
+				    ( 3, "Sales" ),        // Net sales revenue
+				    ( 4, "Profit" ),       // Net profit (Sales - COGS)
+				    ( 5, "Units Sold" )    // Total quantity of units
+				}
+
+	annotation PBI_Id = ca95a9eee369409699869eddf716b6e9
+

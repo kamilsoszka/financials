@@ -1,0 +1,995 @@
+/// Helper table for organizing measures - contains a single empty row to serve as a container for all core business metrics
+table DAX
+	lineageTag: 2cba44ca-8c7a-45c1-8674-a97919e8878f
+
+	/// Total sales revenue
+	measure Sales =
+			
+			/* ====================================================================
+			   MEASURE: Sales
+			   PURPOSE: Calculate total sales revenue across all transactions
+			   LOGIC: Aggregates the Sales column from the financials table
+			   ==================================================================== */
+			-- Sum all sales values
+			VAR TotalSales =
+			    SUM ( financials[Sales] )
+			RETURN
+			    TotalSales
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 📊 Core Metrics
+		lineageTag: 063f4e1a-0b76-4eb9-9e62-f4315cfb2115
+
+	/// Total number of units sold
+	measure 'Units Sold' =
+			
+			/* ====================================================================
+			   MEASURE: Units Sold
+			   PURPOSE: Calculate total number of units sold
+			   LOGIC: Aggregates the Units Sold column from the financials table
+			   ==================================================================== */
+			-- Sum all units sold
+			VAR TotalUnits =
+			    SUM ( financials[Units Sold] )
+			RETURN
+			    TotalUnits
+		formatString: #,0
+		displayFolder: 📊 Core Metrics
+		lineageTag: 1bed5bc4-b66a-4151-b716-bc4ff20b96b6
+
+	/// Cost of Goods Sold - total cost of products sold
+	measure COGS =
+			
+			/* ====================================================================
+			   MEASURE: COGS
+			   PURPOSE: Calculate total Cost of Goods Sold
+			   LOGIC: Aggregates the COGS column from the financials table
+			   ==================================================================== */
+			-- Sum all cost of goods sold
+			VAR TotalCOGS =
+			    SUM ( financials[COGS] )
+			RETURN
+			    TotalCOGS
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		displayFolder: 📊 Core Metrics
+		lineageTag: 37615b9e-0788-40dc-9b28-23342cf260db
+
+	/// Total gross sales before deductions
+	measure 'Gross Sales' =
+			
+			/* ====================================================================
+			   MEASURE: Gross Sales
+			   PURPOSE: Calculate total gross sales before deductions
+			   LOGIC: Aggregates the Gross Sales column from the financials table
+			   ==================================================================== */
+			-- Sum all gross sales values
+			VAR TotalGrossSales =
+			    SUM ( financials[Gross Sales] )
+			RETURN
+			    TotalGrossSales
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		displayFolder: 📊 Core Metrics
+		lineageTag: ba29ed23-576e-4f32-91e1-db3f1c9fdf9d
+
+	/// Total profit (Sales - COGS)
+	measure Profit =
+			
+			/* ====================================================================
+			   MEASURE: Profit
+			   PURPOSE: Calculate total profit (Sales - COGS)
+			   LOGIC: Aggregates the Profit column from the financials table
+			   ==================================================================== */
+			-- Sum all profit values
+			VAR TotalProfit =
+			    SUM ( financials[Profit] )
+			RETURN
+			    TotalProfit
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 📊 Core Metrics
+		lineageTag: 073b06d7-b1d7-4edc-916c-93543f366474
+
+	/// Dynamic title showing Sales with month-over-month comparison
+	measure 'Sales - MoM Title' = ```
+			
+			/* ====================================================================
+			   MEASURE: Sales (Title)
+			   PURPOSE: Dynamic title showing previous month Sales with MoM comparison
+			   LOGIC: Displays previous month value and change indicator:
+			          Format: "PreviousValue | ▲/▼ Difference"
+			          Example: "2.45 M | ▲ 350.25 K"
+			   FORMATTING: Smart formatting switches between units (K, M, G) based
+			               on magnitude with 2 decimal places
+			   ==================================================================== */
+			-- Get current month Sales value
+			VAR CurrentValue = [Sales] -- Calculate previous month Sales value
+			VAR PreviousValue =
+			    CALCULATE ( [Sales], PREVIOUSMONTH ( 'calendar'[Date] ) ) -- Calculate difference between current and previous month
+			VAR Difference = CurrentValue - PreviousValue -- Helper function: Format previous month value with smart units
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            AbsValue <= 1E3, "#,##00",
+			            -- Up to 1,000
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            -- Thousands
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            -- Millions  
+			            "#,##0,,,.00 G" -- Billions
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern ) -- Helper function: Format the difference with smart units and arrow
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            DiffValue <= 1E3, "#,##00",
+			            -- Up to 1,000
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            -- Thousands
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            -- Millions
+			            "#,##0,,,.00 G" -- Billions
+			        ) -- Determine arrow symbol based on direction
+			    VAR Symbol =
+			        SWITCH (
+			            TRUE (),
+			            Difference > 0, "▲ ",
+			            -- Up arrow for positive
+			            Difference < 0, "▼ ",
+			            -- Down arrow for negative
+			            "= " -- Equal sign for no change
+			        )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern ) -- Build and return the complete title
+			VAR TitleText =
+			    IF (
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        "No data available" -- Fallback message
+			    )
+			RETURN
+			    TitleText
+			```
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: 1c3cd058-6463-4dae-88f8-945157d36890
+
+	/// Color indicator for Sales based on month-over-month trend
+	measure 'Sales - Trend Color' =
+			
+			/* ====================================================================
+			   MEASURE: Sales (Color)
+			   PURPOSE: Return color code based on month-over-month Sales trend
+			   LOGIC: Compares current Sales to previous month and returns:
+			          - Orange: No previous month data
+			          - Green: Current > Previous (positive trend)
+			          - Red: Current < Previous (negative trend)
+			   ==================================================================== */
+			-- Calculate Sales for previous month
+			VAR PreviousMonthSales =
+			    CALCULATE ( [Sales], PREVIOUSMONTH ( 'calendar'[Date] ) ) -- Calculate current Sales
+			VAR CurrentSales = [Sales] -- Determine appropriate color based on trend
+			VAR TrendColor =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( PreviousMonthSales ), "Orange",
+			        -- No previous data available
+			        CurrentSales > PreviousMonthSales, "Green",
+			        -- Positive trend
+			        CurrentSales < PreviousMonthSales, "Red" -- Negative trend
+			    )
+			RETURN
+			    TrendColor
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 73e38904-e753-454b-b720-ed5aaf92a061
+
+	/// Display text showing which measure is currently selected
+	measure 'Current Selection' =
+			
+			/* ====================================================================
+			   MEASURE: Selected measure
+			   PURPOSE: Display which measure is currently selected
+			   LOGIC: Shows text indicating the currently selected measure from
+			          the _Measures slicer for user feedback
+			   ==================================================================== */
+			-- Get the currently selected measure name
+			VAR SelectedMeasureName =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Format the display text
+			VAR DisplayText = "The Selected measure is: " & SelectedMeasureName
+			RETURN
+			    DisplayText
+		displayFolder: 🔧 Dynamic Calculations
+		lineageTag: 2c1cbe0e-2e07-4e5b-8e37-586693eb3268
+
+	/// Dynamic title showing Gross Sales with month-over-month comparison
+	measure 'Gross Sales - MoM Title' =
+			
+			/* ====================================================================
+			   MEASURE: Gross Sales (Title)
+			   PURPOSE: Dynamic title showing previous month Gross Sales with MoM comparison
+			   LOGIC: Displays previous month value and change indicator:
+			          Format: "PreviousValue | ▲/▼ Difference"
+			   FORMATTING: Smart formatting switches between units (K, M, G) based
+			               on magnitude with 2 decimal places
+			   ==================================================================== */
+			VAR CurrentValue = [Gross Sales]
+			VAR PreviousValue =
+			    CALCULATE ( [Gross Sales], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Difference = CurrentValue - PreviousValue
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            AbsValue <= 1E3, "#,##00",
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern )
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            DiffValue <= 1E3, "#,##00",
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    VAR Symbol =
+			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern )
+			VAR TitleText =
+			    IF (
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        "No data available"
+			    )
+			RETURN
+			    TitleText
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: 0b9d83be-db8d-4f12-a7ba-419ee2f3e08d
+
+	/// Color indicator for Gross Sales based on month-over-month trend
+	measure 'Gross Sales - Trend Color' =
+			
+			/* ====================================================================
+			   MEASURE: Gross Sales (Color)
+			   PURPOSE: Return color code based on month-over-month Gross Sales trend
+			   LOGIC: Compares current Gross Sales to previous month and returns:
+			          - Orange: No previous month data
+			          - Green: Current > Previous (positive trend)
+			          - Red: Current < Previous (negative trend)
+			   ==================================================================== */
+			-- Calculate Gross Sales for previous month
+			VAR PreviousMonthGrossSales =
+			    CALCULATE ( [Gross Sales], PREVIOUSMONTH ( 'calendar'[Date] ) ) -- Calculate current Gross Sales
+			VAR CurrentGrossSales = [Gross Sales] -- Determine appropriate color based on trend
+			VAR TrendColor =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( PreviousMonthGrossSales ), "Orange",
+			        -- No previous data available
+			        CurrentGrossSales > PreviousMonthGrossSales, "Green",
+			        -- Positive trend
+			        CurrentGrossSales < PreviousMonthGrossSales, "Red" -- Negative trend
+			    )
+			RETURN
+			    TrendColor
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 2a08303b-cbf7-485a-a8f5-ca1e01ba73df
+
+	/// Dynamic title showing Profit with month-over-month comparison
+	measure 'Profit - MoM Title' =
+			
+			/* ====================================================================
+			   MEASURE: Profit (Title)
+			   PURPOSE: Dynamic title showing previous month Profit with MoM comparison
+			   LOGIC: Displays previous month value and change indicator:
+			          Format: "PreviousValue | ▲/▼ Difference"
+			   FORMATTING: Smart formatting switches between units (K, M, G) based
+			               on magnitude with 2 decimal places
+			   ==================================================================== */
+			VAR CurrentValue = [Profit]
+			VAR PreviousValue =
+			    CALCULATE ( [Profit], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Difference = CurrentValue - PreviousValue
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            AbsValue <= 1E3, "#,##00",
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern )
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            DiffValue <= 1E3, "#,##00",
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    VAR Symbol =
+			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern )
+			VAR TitleText =
+			    IF (
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        "No data available"
+			    )
+			RETURN
+			    TitleText
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: e1c16240-b89b-4956-af19-9a7e60bee42e
+
+	/// Color indicator for Profit based on month-over-month trend
+	measure 'Profit - Trend Color' =
+			
+			/* ====================================================================
+			   MEASURE: Profit (Color)
+			   PURPOSE: Return color code based on month-over-month Profit trend
+			   LOGIC: Compares current Profit to previous month and returns:
+			          - Orange: No previous month data
+			          - Green: Current > Previous (positive trend)
+			          - Red: Current < Previous (negative trend)
+			   ==================================================================== */
+			-- Calculate Profit for previous month
+			VAR PreviousMonthProfit =
+			    CALCULATE ( [Profit], PREVIOUSMONTH ( 'calendar'[Date] ) ) -- Calculate current Profit
+			VAR CurrentProfit = [Profit] -- Determine appropriate color based on trend
+			VAR TrendColor =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( PreviousMonthProfit ), "Orange",
+			        -- No previous data available
+			        CurrentProfit > PreviousMonthProfit, "Green",
+			        -- Positive trend
+			        CurrentProfit < PreviousMonthProfit, "Red" -- Negative trend
+			    )
+			RETURN
+			    TrendColor
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 6dedde37-e018-43ce-a4e8-0b499cd3ed06
+
+	/// Dynamic title showing COGS with month-over-month comparison
+	measure 'COGS - MoM Title' =
+			
+			/* ====================================================================
+			   MEASURE: COGS (Title)
+			   PURPOSE: Dynamic title showing previous month COGS with MoM comparison
+			   LOGIC: Displays previous month value and change indicator:
+			          Format: "PreviousValue | ▲/▼ Difference"
+			   FORMATTING: Smart formatting switches between units (K, M, G) based
+			               on magnitude with 2 decimal places
+			   ==================================================================== */
+			VAR CurrentValue = [COGS]
+			VAR PreviousValue =
+			    CALCULATE ( [COGS], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Difference = CurrentValue - PreviousValue
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            AbsValue <= 1E3, "#,##00",
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern )
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            DiffValue <= 1E3, "#,##00",
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    VAR Symbol =
+			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern )
+			VAR TitleText =
+			    IF (
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        "No data available"
+			    )
+			RETURN
+			    TitleText
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: 20528175-9c65-45a5-98c5-2d80689e0a12
+
+	/// Color indicator for COGS based on month-over-month trend
+	measure 'COGS - Trend Color' =
+			
+			/* ====================================================================
+			   MEASURE: COGS (Color)
+			   PURPOSE: Return color code based on month-over-month COGS trend
+			   LOGIC: Compares current COGS to previous month and returns:
+			          - Orange: No previous month data
+			          - Green: Current < Previous (lower costs = positive)
+			          - Red: Current > Previous (higher costs = negative)
+			   NOTE: For COGS, lower is better, so logic is inverted
+			   ==================================================================== */
+			-- Calculate COGS for previous month
+			VAR PreviousMonthCOGS =
+			    CALCULATE ( [COGS], PREVIOUSMONTH ( 'calendar'[Date] ) ) -- Calculate current COGS
+			VAR CurrentCOGS = [COGS] -- Determine appropriate color based on trend (inverted logic for costs)
+			VAR TrendColor =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( PreviousMonthCOGS ), "Orange",
+			        -- No previous data available
+			        CurrentCOGS < PreviousMonthCOGS, "Green",
+			        -- Lower costs = positive
+			        CurrentCOGS > PreviousMonthCOGS, "Red" -- Higher costs = negative
+			    )
+			RETURN
+			    TrendColor
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 9b2cd236-82b0-42a2-9e89-8af55633dcac
+
+	/// Dynamic title showing Units Sold with month-over-month comparison
+	measure 'Units Sold - MoM Title' =
+			
+			/* ====================================================================
+			   MEASURE: Units Sold (Title)
+			   PURPOSE: Dynamic title showing previous month Units Sold with MoM comparison
+			   LOGIC: Displays previous month value and change indicator:
+			          Format: "PreviousValue | ▲/▼ Difference"
+			   FORMATTING: Smart formatting switches between units (K, M, G) based
+			               on magnitude with 2 decimal places
+			   ==================================================================== */
+			VAR CurrentValue = [Units Sold]
+			VAR PreviousValue =
+			    CALCULATE ( [Units Sold], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Difference = CurrentValue - PreviousValue
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            AbsValue <= 1E3, "#,##00",
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern )
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            DiffValue <= 1E3, "#,##00",
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            "#,##0,,,.00 G"
+			        )
+			    VAR Symbol =
+			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern )
+			VAR TitleText =
+			    IF (
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        "No data available"
+			    )
+			RETURN
+			    TitleText
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: dd804c7f-ce40-423e-833c-b00804d9e6fe
+
+	/// Color indicator for Units Sold based on month-over-month trend
+	measure 'Units Sold - Trend Color' =
+			
+			/* ====================================================================
+			   MEASURE: Units Sold (Color)
+			   PURPOSE: Return color code based on month-over-month Units Sold trend
+			   LOGIC: Compares current Units Sold to previous month and returns:
+			          - Orange: No previous month data
+			          - Green: Current > Previous (positive trend)
+			          - Red: Current < Previous (negative trend)
+			   ==================================================================== */
+			-- Calculate Units Sold for previous month
+			VAR PreviousMonthUnits =
+			    CALCULATE ( [Units Sold], PREVIOUSMONTH ( 'calendar'[Date] ) ) -- Calculate current Units Sold
+			VAR CurrentUnits = [Units Sold] -- Determine appropriate color based on trend
+			VAR TrendColor =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( PreviousMonthUnits ), "Orange",
+			        -- No previous data available
+			        CurrentUnits > PreviousMonthUnits, "Green",
+			        -- Positive trend
+			        CurrentUnits < PreviousMonthUnits, "Red" -- Negative trend
+			    )
+			RETURN
+			    TrendColor
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 5555e1e3-014b-4224-89d5-2c50dc76834c
+
+	/// Highlight color when Profit is the selected measure
+	measure 'Profit - Selection Highlight' =
+			
+			/* ====================================================================
+			   MEASURE: Profit (Color v2)
+			   PURPOSE: Return highlight color when Profit is the selected measure
+			   LOGIC: Returns a gray background color (#E6E6E6) when Profit is
+			          selected in the _Measures slicer, otherwise returns BLANK
+			   ==================================================================== */
+			-- Get the currently selected measure from slicer
+			VAR SelectedMeasure =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Return highlight color if Profit is selected
+			VAR HighlightColor =
+			    IF (
+			        SelectedMeasure = "Profit",
+			        "#E6E6E6",
+			        -- Light gray background for selection
+			        BLANK () -- No highlight for other measures
+			    )
+			RETURN
+			    HighlightColor
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: f7eece15-fef8-42df-90b3-3d05680a4699
+
+	/// Highlight color when COGS is the selected measure
+	measure 'COGS - Selection Highlight' =
+			
+			/* ====================================================================
+			   MEASURE: COGS (Color v2)
+			   PURPOSE: Return highlight color when COGS is the selected measure
+			   LOGIC: Returns a gray background color (#E6E6E6) when COGS is
+			          selected in the _Measures slicer, otherwise returns BLANK
+			   ==================================================================== */
+			-- Get the currently selected measure from slicer
+			VAR SelectedMeasure =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Return highlight color if COGS is selected
+			VAR HighlightColor =
+			    IF (
+			        SelectedMeasure = "COGS",
+			        "#E6E6E6",
+			        -- Light gray background for selection
+			        BLANK () -- No highlight for other measures
+			    )
+			RETURN
+			    HighlightColor
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: 95d0b0d6-28fd-45d2-88c0-74633b9f163a
+
+	/// Highlight color when Gross Sales is the selected measure
+	measure 'Gross Sales - Selection Highlight' =
+			
+			/* ====================================================================
+			   MEASURE: Gross Sales (Color v2)
+			   PURPOSE: Return highlight color when Gross Sales is the selected measure
+			   LOGIC: Returns a gray background color (#E6E6E6) when Gross Sales is
+			          selected in the _Measures slicer, otherwise returns BLANK
+			   ==================================================================== */
+			-- Get the currently selected measure from slicer
+			VAR SelectedMeasure =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Return highlight color if Gross Sales is selected
+			VAR HighlightColor =
+			    IF (
+			        SelectedMeasure = "Gross Sales",
+			        "#E6E6E6",
+			        -- Light gray background for selection
+			        BLANK () -- No highlight for other measures
+			    )
+			RETURN
+			    HighlightColor
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: bcddbff1-1608-4306-8a92-24e04745ec29
+
+	/// Highlight color when Sales is the selected measure
+	measure 'Sales - Selection Highlight' =
+			
+			/* ====================================================================
+			   MEASURE: Sales (Color v2)
+			   PURPOSE: Return highlight color when Sales is the selected measure
+			   LOGIC: Returns a gray background color (#E6E6E6) when Sales is
+			          selected in the _Measures slicer, otherwise returns BLANK
+			   ==================================================================== */
+			-- Get the currently selected measure from slicer
+			VAR SelectedMeasure =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Return highlight color if Sales is selected
+			VAR HighlightColor =
+			    IF (
+			        SelectedMeasure = "Sales",
+			        "#E6E6E6",
+			        -- Light gray background for selection
+			        BLANK () -- No highlight for other measures
+			    )
+			RETURN
+			    HighlightColor
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: 84a35d7c-5f3a-46ee-9eb3-101d5af2d2a9
+
+	/// Highlight color when Units Sold is the selected measure
+	measure 'Units Sold - Selection Highlight' =
+			
+			/* ====================================================================
+			   MEASURE: Units Sold (Color v2)
+			   PURPOSE: Return highlight color when Units Sold is the selected measure
+			   LOGIC: Returns a gray background color (#E6E6E6) when Units Sold is
+			          selected in the _Measures slicer, otherwise returns BLANK
+			   ==================================================================== */
+			-- Get the currently selected measure from slicer
+			VAR SelectedMeasure =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Return highlight color if Units Sold is selected
+			VAR HighlightColor =
+			    IF (
+			        SelectedMeasure = "Units Sold",
+			        "#E6E6E6",
+			        -- Light gray background for selection
+			        BLANK () -- No highlight for other measures
+			    )
+			RETURN
+			    HighlightColor
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: caca9945-f140-4de0-ab58-a7f6c537059a
+
+	/// Selected country name for display purposes
+	measure 'Selected Country' =
+			
+			/* ====================================================================
+			   MEASURE: Country
+			   PURPOSE: Display the selected country name
+			   LOGIC: Returns the currently selected country from filter context
+			          Used for displaying context in visuals and labels
+			   ==================================================================== */
+			-- Get the selected country value
+			VAR SelectedCountry =
+			    SELECTEDVALUE ( financials[Country] )
+			RETURN
+			    SelectedCountry
+		displayFolder: 🏷️ Context Labels
+		lineageTag: d893d2be-b072-42a9-a841-7f52c16e1405
+
+	/// Percentage of total for the selected measure
+	measure '% of Total' =
+			
+			/* ====================================================================
+			   MEASURE: % of Total
+			   PURPOSE: Calculate percentage of grand total for the selected measure
+			   LOGIC: Divides the current measure value by the grand total across
+			          all products and segments to show relative contribution
+			   ==================================================================== */
+			-- Get the current measure value in context
+			VAR CurrentValue = [Dynamic Measure] -- Calculate grand total across all products and segments
+			VAR GrandTotal =
+			    CALCULATE (
+			        [Dynamic Measure],
+			        ALL ( financials[Product] ),
+			        -- Remove product filter
+			        ALL ( financials[Segment] ) -- Remove segment filter
+			    ) -- Calculate percentage (safely handles division by zero)
+			VAR PercentageOfTotal =
+			    DIVIDE ( CurrentValue, GrandTotal )
+			RETURN
+			    PercentageOfTotal
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: 📈 Analytics\Comparisons
+		lineageTag: b88ec247-a49a-439e-a23b-5222e2a29ae1
+
+	/// Selected product name for display purposes
+	measure 'Selected Product' =
+			
+			/* ====================================================================
+			   MEASURE: Product
+			   PURPOSE: Display the selected product name
+			   LOGIC: Returns the currently selected product from filter context
+			          Used for displaying context in visuals and labels
+			   ==================================================================== */
+			-- Get the selected product value
+			VAR SelectedProduct =
+			    SELECTEDVALUE ( financials[Product] )
+			RETURN
+			    SelectedProduct
+		displayFolder: 🏷️ Context Labels
+		lineageTag: 568ba38d-5f93-4598-a382-8b8704b5c511
+
+	/// Rank position by country for the selected measure
+	measure Rank =
+			
+			/* ====================================================================
+			   MEASURE: Rank
+			   PURPOSE: Calculate rank position by country for the selected measure
+			   LOGIC: Ranks all countries based on the selected measure value in
+			          descending order (highest value = rank 1)
+			   ==================================================================== */
+			-- Get the current measure value
+			VAR CurrentMeasureValue = [Dynamic Measure] -- Calculate rank across all countries (descending order)
+			VAR CountryRank =
+			    RANKX (
+			        ALL ( financials[Country] ),
+			        -- Rank across all countries
+			        [Dynamic Measure],
+			        ,
+			        -- No value parameter needed
+			        DESC -- Highest value gets rank 1
+			    )
+			RETURN
+			    CountryRank
+		formatString: 0
+		displayFolder: 📈 Analytics\Rankings
+		lineageTag: 803f1145-c86a-4136-8602-9c1c9db205d9
+
+	/// Formatted rank with measure value for table display
+	measure 'Rank with Value' =
+			
+			/* ====================================================================
+			   MEASURE: Rank with Value
+			   PURPOSE: Display formatted rank with measure value for table visuals
+			   LOGIC: Combines rank number with formatted measure value in format:
+			          "Rank | (FormattedValue)"
+			          Example: "1 | (2.45 M)"
+			   ==================================================================== */
+			-- Calculate the rank position
+			VAR CountryRank = [Rank] -- Get the current measure value
+			VAR MeasureValue = [Dynamic Measure] -- Format the measure value in thousands (K)
+			VAR FormattedValue =
+			    FORMAT ( MeasureValue, "#,,#,.00 K" -- Format as thousands with 2 decimals
+			        ) -- Combine rank and formatted value
+			VAR DisplayText = CountryRank & " | (" & FormattedValue & ")"
+			RETURN
+			    DisplayText
+		displayFolder: 📈 Analytics\Rankings
+		lineageTag: 6d9aacfc-fcaf-4de8-8390-1e0e9646b728
+
+	/// Selected segment name for display purposes
+	measure 'Selected Segment' =
+			
+			/* ====================================================================
+			   MEASURE: Segment
+			   PURPOSE: Display selected segment names as comma-separated list
+			   LOGIC: Shows up to 5 segments in alphabetical order. If more than 5
+			          segments are selected, shows first 5 and adds ", etc."
+			   ==================================================================== */
+			-- Count distinct segments in current filter context
+			VAR DistinctSegmentCount =
+			    DISTINCTCOUNT ( 'financials'[Segment] ) -- Maximum number of segments to display before truncating
+			VAR MaxSegmentsToShow = 5 -- Get top N segments alphabetically
+			VAR TopSegments =
+			    TOPN (
+			        MaxSegmentsToShow,
+			        VALUES ( 'financials'[Segment] ),
+			        'financials'[Segment], ASC -- Alphabetical order
+			    ) -- Concatenate top segments with comma separator
+			VAR TopSegmentsList =
+			    CONCATENATEX (
+			        TopSegments,
+			        'financials'[Segment],
+			        ", ",
+			        'financials'[Segment], ASC
+			    ) -- Get all segments concatenated
+			VAR AllSegmentsList =
+			    CONCATENATEX (
+			        VALUES ( 'financials'[Segment] ),
+			        'financials'[Segment],
+			        ", ",
+			        'financials'[Segment], ASC
+			    ) -- Return appropriate list based on count
+			VAR SegmentDisplay =
+			    IF (
+			        DistinctSegmentCount > MaxSegmentsToShow,
+			        TopSegmentsList & ", etc.",
+			        -- Truncated list
+			        AllSegmentsList -- Full list
+			    )
+			RETURN
+			    SegmentDisplay
+		displayFolder: 🏷️ Context Labels
+		lineageTag: 1dd4b33e-fce8-4a4c-86d1-1aeafb12c7f3
+
+		extendedProperty MeasureTemplate =
+				{
+				  "version": 0,
+				  "daxTemplateName": "ConcatenateValues"
+				}
+
+		changedProperty = FormatString
+
+	/// Custom tooltip content with product, segment, and measure details
+	measure 'Custom Tooltip Content' = ```
+			
+			/* ====================================================================
+			   MEASURE: Custom Tooltip Content
+			   PURPOSE: Generate custom tooltip content with formatted metrics
+			   LOGIC: Creates a multi-line tooltip showing:
+			          - Product name
+			          - Segment name  
+			          - Selected measure value (formatted)
+			          - Grand total (formatted)
+			          - Percentage of grand total
+			   FORMATTING: Values formatted with K (thousands) or M (millions)
+			               using 2 decimal places for clarity
+			   ==================================================================== */
+			-- Line break character for multi-line tooltip
+			VAR LineBreak =
+			    UNICHAR ( 10 ) -- Product display line
+			VAR ProductText = "Displayed Product: " & [Selected Product] -- Segment display line
+			VAR SegmentText = "Displayed Segment: " & [Selected Segment] -- Current measure value
+			VAR MeasureValue = [Dynamic Measure] -- Format the current measure value with K/M units
+			VAR FormattedMeasure =
+			    VAR AbsoluteValue =
+			        ABS ( MeasureValue )
+			    VAR FormattedText =
+			        SWITCH (
+			            TRUE (),
+			            AbsoluteValue < 1000, FORMAT ( MeasureValue, "0" ),
+			            AbsoluteValue < 10000, FORMAT ( MeasureValue, "#,##0" ),
+			            AbsoluteValue < 1000000,
+			                FORMAT ( MeasureValue / 1000, "0.00" ) & " K",
+			            AbsoluteValue < 10000000,
+			                FORMAT ( MeasureValue / 1000000, "0.00" ) & " M",
+			            FORMAT ( MeasureValue / 1000000, "0.0" ) & " M"
+			        )
+			    RETURN
+			        FormattedText -- Measure display line
+			VAR MeasureText = "Selected Measure: " & FormattedMeasure -- Grand total value
+			VAR TotalValue = [Total] -- Format the grand total with K/M units
+			VAR FormattedTotal =
+			    VAR AbsoluteValue =
+			        ABS ( TotalValue )
+			    VAR FormattedText =
+			        SWITCH (
+			            TRUE (),
+			            AbsoluteValue < 1000, FORMAT ( TotalValue, "0" ),
+			            AbsoluteValue < 10000, FORMAT ( TotalValue, "#,##0" ),
+			            AbsoluteValue < 1000000,
+			                FORMAT ( TotalValue / 1000, "0.00" ) & " K",
+			            AbsoluteValue < 10000000,
+			                FORMAT ( TotalValue / 1000000, "0.00" ) & " M",
+			            FORMAT ( TotalValue / 1000000, "0.0" ) & " M"
+			        )
+			    RETURN
+			        FormattedText -- Total display line
+			VAR TotalText = "Grand Total: " & FormattedTotal -- Percentage display line
+			VAR PctText =
+			    "Pct of GT: " & FORMAT ( [% of Total], "0.00%" ) -- Combine all lines into complete tooltip
+			VAR CompleteTooltip = ProductText & LineBreak & SegmentText & LineBreak & MeasureText & LineBreak & TotalText & LineBreak & PctText
+			RETURN
+			    CompleteTooltip
+			```
+		displayFolder: 💬 Tooltips
+		lineageTag: 7dda535b-5227-4185-b8db-73b905b82891
+
+	/// Title text for custom tooltips
+	measure 'Custom Tooltip Header' =
+			
+			/* ====================================================================
+			   MEASURE: Tooltip (Title)
+			   PURPOSE: Display title for custom tooltips
+			   LOGIC: Returns a static text string to be used as tooltip header
+			   ==================================================================== */
+			-- Return static tooltip title
+			VAR TooltipTitle = "Custom Tooltip"
+			RETURN
+			    TooltipTitle
+		displayFolder: 💬 Tooltips
+		lineageTag: fa8cb898-7fb1-46a0-959f-1056482dbde7
+
+	/// Grand total across all products and segments
+	measure Total =
+			
+			/* ====================================================================
+			   MEASURE: Total
+			   PURPOSE: Calculate grand total for the selected measure
+			   LOGIC: Returns the measure value across all products and segments
+			          while respecting country selections (ALLSELECTED)
+			   ==================================================================== */
+			-- Calculate grand total with modified filter context
+			VAR GrandTotal =
+			    CALCULATE (
+			        [Dynamic Measure],
+			        ALL ( financials[Product] ),
+			        -- Remove product filter
+			        ALL ( financials[Segment] ),
+			        -- Remove segment filter
+			        ALLSELECTED ( financials[Country] ) -- Keep selected countries only
+			    )
+			RETURN
+			    GrandTotal
+		displayFolder: 📈 Analytics\Comparisons
+		lineageTag: 44dd9711-aa80-451a-b196-8bf8bafa8365
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Highlight color for rank 1 position
+	measure 'Rank - #1 Highlight' =
+			
+			/* ====================================================================
+			   MEASURE: Rank (Color v2)
+			   PURPOSE: Highlight rank 1 position with green color
+			   LOGIC: Checks if the first character of Rank (Table) is "1" and
+			          returns green color for highlighting, otherwise returns BLANK
+			   ==================================================================== */
+			-- Get the formatted rank text
+			VAR RankTableText = [Rank with Value] -- Extract first character to check if it's rank 1
+			VAR FirstCharacter =
+			    LEFT ( RankTableText, 1 ) -- Determine highlight color based on rank
+			VAR HighlightColor =
+			    IF (
+			        FirstCharacter = "1",
+			        "Green",
+			        -- Highlight first place with green
+			        BLANK () -- No highlight for other ranks
+			    )
+			RETURN
+			    HighlightColor
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: b629de58-1362-4f6e-a37d-9cc5b97728c3
+
+	/// Description of ranking criteria and measure selection
+	measure 'Ranking Context' =
+			
+			/* ====================================================================
+			   MEASURE: Position based on
+			   PURPOSE: Display the criteria used for ranking calculations
+			   LOGIC: Shows the selected measure, country, and date that determine
+			          the current ranking position in a formatted multi-line string
+			   ==================================================================== */
+			-- Get the selected measure name
+			VAR SelectedMeasureName =
+			    SELECTEDVALUE ( _Measures[Value2] ) -- Get the selected country
+			VAR SelectedCountry =
+			    SELECTEDVALUE ( financials[Country] ) -- Get the selected date period
+			VAR SelectedDate =
+			    SELECTEDVALUE ( 'calendar'[Year Month] ) -- Line break character for multi-line text
+			VAR LineBreak =
+			    UNICHAR ( 10 ) -- Build the multi-line description
+			VAR DescriptionText = "Position based on: " & LineBreak & SelectedMeasureName & " ( as the chosen measure ), " & LineBreak & SelectedCountry & " ( as the country under analysis ), " & LineBreak & SelectedDate & " ( selected date ) "
+			RETURN
+			    DescriptionText
+		displayFolder: 🔧 Dynamic Calculations
+		lineageTag: ec09321e-883e-4df2-b488-178d4259777a
+
+	column Value
+		isHidden
+		lineageTag: 22760aad-023c-4804-95f4-ce79d2b223c9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DAX = calculated
+		mode: import
+		source = { "" }
+
+	annotation PBI_Id = be28a2e58ab94cb7bf35dc44763534b6
+

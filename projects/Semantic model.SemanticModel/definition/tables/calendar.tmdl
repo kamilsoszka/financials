@@ -1,0 +1,146 @@
+/// Date dimension table with comprehensive time intelligence columns - Automatically spans from earliest to latest date in financials data
+table calendar
+	lineageTag: 5459fd7f-a89a-4ce4-b2e9-5fdde10b820e
+	dataCategory: Time
+
+	column Date
+		isKey
+		formatString: General Date
+		lineageTag: 768f3340-81f4-4a59-a3ee-8e1323dfa067
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		formatString: 0
+		lineageTag: 81cfc35b-feb0-4c30-81c7-412a9547f89d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Quarter Number'
+		lineageTag: bd27bb4a-7e9a-4ac1-8a89-e1d7fc6ce0c1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Quarter Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Quarter'
+		lineageTag: 03388a95-5983-4b6d-a189-43eb5d5cbcb9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Quarter]
+		sortByColumn: 'Year Quarter Number'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		lineageTag: 29cddead-ff79-4700-aa86-75b1816e3ecd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Month Number'
+		lineageTag: 7b18358a-6e07-4373-a198-5a5d7633f683
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Month Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Month'
+		lineageTag: df812e52-c293-4c7f-9218-fc81eba7da62
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Month]
+		sortByColumn: 'Year Month Number'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		formatString: 0
+		lineageTag: 5ad5acde-7aab-42ef-95c9-4ec49138fef4
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Short'
+		lineageTag: de387c30-a171-472c-9228-0f32839464ab
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Short]
+		sortByColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Week Number'
+		lineageTag: 9f997424-a28f-4b14-9dd2-80fb6fde420b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Week Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Week'
+		lineageTag: 3d3032d8-5fa4-47b9-b2ae-847a40d58a33
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Week]
+		sortByColumn: 'Year Week Number'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Number'
+		formatString: 0
+		lineageTag: 18abd4a7-bcc2-410a-80a0-0c5e5a75980b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Name'
+		lineageTag: cfebd03a-3120-40e9-966d-07315e4d66e3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Name]
+		sortByColumn: 'Week Number'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition calendar = calculated
+		mode: import
+		source =
+				
+				VAR _firstdate = MIN ( financials[Date] )  // Get earliest date from financials
+				VAR _lastdate = MAX ( financials[Date] )   // Get latest date from financials
+				VAR Dates = CALENDAR ( _firstdate, _lastdate )  // Generate date range
+				VAR Result =
+				    ADDCOLUMNS (
+				        Dates,
+				        "Year", YEAR ( [Date] ),
+				        "Year Quarter Number", FORMAT ( [Date], "yyyyq" ),
+				        "Year Quarter", FORMAT ( [Date], "yyyy \QQ" ),
+				        "Quarter", FORMAT ( [Date], "\QQ" ),
+				        "Year Month Number", FORMAT ( [Date], "yyyymm" ),
+				        "Year Month", FORMAT ( [Date], "yyyy MMM" ),
+				        "Month", MONTH ( [Date] ),
+				        "Month Short", FORMAT ( [Date], "MMM" ),
+				        "Year Week Number", YEAR ( [Date] ) & FORMAT ( WEEKNUM ( [Date], 1 ), "00" ),
+				        "Year Week", YEAR ( [Date] ) & " W" & FORMAT ( WEEKNUM ( [Date], 1 ), "00" ),
+				        "Week Number", WEEKNUM ( [Date], 1 ),
+				        "Week Name", "W" & WEEKNUM ( [Date], 1 )
+				    )
+				RETURN Result
+
+	annotation PBI_Id = 0fefd13fad7c4c1897c4e6f9fd2941b7
+
