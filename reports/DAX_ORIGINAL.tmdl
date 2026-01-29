@@ -1,0 +1,693 @@
+table DAX
+	lineageTag: 2cba44ca-8c7a-45c1-8674-a97919e8878f
+
+	/// Total sales revenue
+	measure Sales =
+			
+			SUM ( financials[Sales] )
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 📊 Core Metrics
+		lineageTag: 063f4e1a-0b76-4eb9-9e62-f4315cfb2115
+
+	/// Total number of units sold
+	measure 'Units Sold' =
+			
+			SUM ( financials[Units Sold] )
+		formatString: #,0
+		displayFolder: 📊 Core Metrics
+		lineageTag: 1bed5bc4-b66a-4151-b716-bc4ff20b96b6
+
+	/// Cost of Goods Sold - total cost of products sold
+	measure COGS =
+			
+			SUM ( financials[COGS] )
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		displayFolder: 📊 Core Metrics
+		lineageTag: 37615b9e-0788-40dc-9b28-23342cf260db
+
+	/// Total gross sales before deductions
+	measure 'Gross Sales' =
+			
+			SUM ( financials[Gross Sales] )
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		displayFolder: 📊 Core Metrics
+		lineageTag: ba29ed23-576e-4f32-91e1-db3f1c9fdf9d
+
+	/// Total profit (Sales - COGS)
+	measure Profit =
+			
+			SUM ( financials[Profit] )
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 📊 Core Metrics
+		lineageTag: 073b06d7-b1d7-4edc-916c-93543f366474
+
+	/// Dynamic title showing Sales with month-over-month comparison
+	measure 'Sales (Title)' =
+			
+			// Get current month Sales value
+			VAR CurrentValue = [Sales] // Calculate previous month Sales value
+			VAR PreviousValue =
+			    CALCULATE ( [Sales], PREVIOUSMONTH ( 'calendar'[Date] ) ) // Calculate difference between current and previous month
+			VAR Difference = CurrentValue - PreviousValue // Helper function to format previous month value
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for values up to 1,000
+			            AbsValue <= 1E3, "#,##00",
+			            // Format for thousands (K) - values up to 1,000,000
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            // Format for millions (M) - values up to 1,000,000,000
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            // Format for billions (G) - values above 1,000,000,000
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern ) // Helper function to format the difference
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for differences up to 1,000
+			            DiffValue <= 1E3, "#,##00",
+			            // Format for differences in thousands (K)
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            // Format for differences in millions (M)
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            // Format for differences in billions (G)
+			            "#,##0,,,.00 G"
+			        ) // Determine arrow symbol based on direction
+			    VAR Symbol =
+			        SWITCH (
+			            TRUE (),
+			            Difference > 0, "▲ ",
+			            // Up arrow for positive difference
+			            Difference < 0, "▼ ",
+			            // Down arrow for negative difference
+			            "= " // Equal sign for no change
+			        )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern ) // Return formatted string
+			RETURN
+			    IF (
+			        // Check if both values are available
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        // Format: "PreviousMonthValue | Arrow DifferenceValue"
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        // Return message if data is missing
+			        "No data available"
+			    )
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: 1c3cd058-6463-4dae-88f8-945157d36890
+
+	/// Color indicator for Sales based on month-over-month trend
+	measure 'Sales (Color)' =
+			
+			VAR _pm =
+			    CALCULATE ( [Sales], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Result =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( _pm ), "Orange",
+			        [Sales] > _pm, "Green",
+			        [Sales] < _pm, "Red"
+			    )
+			RETURN
+			    Result
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 73e38904-e753-454b-b720-ed5aaf92a061
+
+	/// Display text showing which measure is currently selected
+	measure 'Selected measure' =
+			
+			"The Selected measure is: " & SELECTEDVALUE ( _Measures[Value2] )
+		displayFolder: 🔧 Dynamic Calculations
+		lineageTag: 2c1cbe0e-2e07-4e5b-8e37-586693eb3268
+
+	/// Dynamic title showing Gross Sales with month-over-month comparison
+	measure 'Gross Sales (Title)' =
+			
+			// Get current month Gross Sales value
+			VAR CurrentValue = [Gross Sales] // Calculate previous month Gross Sales value
+			VAR PreviousValue =
+			    CALCULATE ( [Gross Sales], PREVIOUSMONTH ( 'calendar'[Date] ) ) // Calculate difference between current and previous month
+			VAR Difference = CurrentValue - PreviousValue // Helper function to format previous month value
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for values up to 1,000
+			            AbsValue <= 1E3, "#,##00",
+			            // Format for thousands (K) - values up to 1,000,000
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            // Format for millions (M) - values up to 1,000,000,000
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            // Format for billions (G) - values above 1,000,000,000
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern ) // Helper function to format the difference
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for differences up to 1,000
+			            DiffValue <= 1E3, "#,##00",
+			            // Format for differences in thousands (K)
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            // Format for differences in millions (M)
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            // Format for differences in billions (G)
+			            "#,##0,,,.00 G"
+			        ) // Determine arrow symbol based on direction
+			    VAR Symbol =
+			        SWITCH (
+			            TRUE (),
+			            Difference > 0, "▲ ",
+			            // Up arrow for positive difference
+			            Difference < 0, "▼ ",
+			            // Down arrow for negative difference
+			            "= " // Equal sign for no change
+			        )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern ) // Return formatted string
+			RETURN
+			    IF (
+			        // Check if both values are available
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        // Format: "PreviousMonthValue | Arrow DifferenceValue"
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        // Return message if data is missing
+			        "No data available"
+			    )
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: 0b9d83be-db8d-4f12-a7ba-419ee2f3e08d
+
+	/// Color indicator for Gross Sales based on month-over-month trend
+	measure 'Gross Sales (Color)' =
+			
+			VAR _pm =
+			    CALCULATE ( [Gross Sales], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Result =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( _pm ), "Orange",
+			        [Gross Sales] > _pm, "Green",
+			        [Gross Sales] < _pm, "Red"
+			    )
+			RETURN
+			    Result
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 2a08303b-cbf7-485a-a8f5-ca1e01ba73df
+
+	/// Dynamic title showing Profit with month-over-month comparison
+	measure 'Profit (Title)' =
+			
+			// Get current month Profit value
+			VAR CurrentValue = [Profit] // Calculate previous month Profit value
+			VAR PreviousValue =
+			    CALCULATE ( [Profit], PREVIOUSMONTH ( 'calendar'[Date] ) ) // Calculate difference between current and previous month
+			VAR Difference = CurrentValue - PreviousValue // Helper function to format previous month value
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for values up to 1,000
+			            AbsValue <= 1E3, "#,##00",
+			            // Format for thousands (K) - values up to 1,000,000
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            // Format for millions (M) - values up to 1,000,000,000
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            // Format for billions (G) - values above 1,000,000,000
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern ) // Helper function to format the difference
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for differences up to 1,000
+			            DiffValue <= 1E3, "#,##00",
+			            // Format for differences in thousands (K)
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            // Format for differences in millions (M)
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            // Format for differences in billions (G)
+			            "#,##0,,,.00 G"
+			        ) // Determine arrow symbol based on direction
+			    VAR Symbol =
+			        SWITCH (
+			            TRUE (),
+			            Difference > 0, "▲ ",
+			            // Up arrow for positive difference
+			            Difference < 0, "▼ ",
+			            // Down arrow for negative difference
+			            "= " // Equal sign for no change
+			        )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern ) // Return formatted string
+			RETURN
+			    IF (
+			        // Check if both values are available
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        // Format: "PreviousMonthValue | Arrow DifferenceValue"
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        // Return message if data is missing
+			        "No data available"
+			    )
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: e1c16240-b89b-4956-af19-9a7e60bee42e
+
+	/// Color indicator for Profit based on month-over-month trend
+	measure 'Profit (Color)' =
+			
+			VAR _pm =
+			    CALCULATE ( [Profit], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Result =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( _pm ), "Orange",
+			        [Profit] > _pm, "Green",
+			        [Profit] < _pm, "Red"
+			    )
+			RETURN
+			    Result
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 6dedde37-e018-43ce-a4e8-0b499cd3ed06
+
+	/// Dynamic title showing COGS with month-over-month comparison
+	measure 'COGS (Title)' =
+			
+			// Get current month COGS value
+			VAR CurrentValue = [COGS] // Calculate previous month COGS value
+			VAR PreviousValue =
+			    CALCULATE ( [COGS], PREVIOUSMONTH ( 'calendar'[Date] ) ) // Calculate difference between current and previous month
+			VAR Difference = CurrentValue - PreviousValue // Helper function to format previous month value
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for values up to 1,000
+			            AbsValue <= 1E3, "#,##00",
+			            // Format for thousands (K) - values up to 1,000,000
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            // Format for millions (M) - values up to 1,000,000,000
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            // Format for billions (G) - values above 1,000,000,000
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern ) // Helper function to format the difference
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for differences up to 1,000
+			            DiffValue <= 1E3, "#,##00",
+			            // Format for differences in thousands (K)
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            // Format for differences in millions (M)
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            // Format for differences in billions (G)
+			            "#,##0,,,.00 G"
+			        ) // Determine arrow symbol based on direction
+			    VAR Symbol =
+			        SWITCH (
+			            TRUE (),
+			            Difference > 0, "▲ ",
+			            // Up arrow for positive difference
+			            Difference < 0, "▼ ",
+			            // Down arrow for negative difference
+			            "= " // Equal sign for no change
+			        )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern ) // Return formatted string
+			RETURN
+			    IF (
+			        // Check if both values are available
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        // Format: "PreviousMonthValue | Arrow DifferenceValue"
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        // Return message if data is missing
+			        "No data available"
+			    )
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: 20528175-9c65-45a5-98c5-2d80689e0a12
+
+	/// Color indicator for COGS based on month-over-month trend
+	measure 'COGS (Color)' =
+			
+			VAR _pm =
+			    CALCULATE ( [COGS], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Result =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( _pm ), "Orange",
+			        [COGS] < _pm, "Green",
+			        [COGS] > _pm, "Red"
+			    )
+			RETURN
+			    Result
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 9b2cd236-82b0-42a2-9e89-8af55633dcac
+
+	/// Dynamic title showing Units Sold with month-over-month comparison
+	measure 'Units Sold (Title)' =
+			
+			// Get current month Units Sold value
+			VAR CurrentValue = [Units Sold] // Calculate previous month Units Sold value
+			VAR PreviousValue =
+			    CALCULATE ( [Units Sold], PREVIOUSMONTH ( 'calendar'[Date] ) ) // Calculate difference between current and previous month
+			VAR Difference = CurrentValue - PreviousValue // Helper function to format previous month value
+			VAR FormatPreviousMonth =
+			    VAR ValueToFormat = PreviousValue
+			    VAR AbsValue =
+			        ABS ( ValueToFormat )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for values up to 1,000
+			            AbsValue <= 1E3, "#,##00",
+			            // Format for thousands (K) - values up to 1,000,000
+			            AbsValue <= 1E6, "#,##0,.00 K",
+			            // Format for millions (M) - values up to 1,000,000,000
+			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            // Format for billions (G) - values above 1,000,000,000
+			            "#,##0,,,.00 G"
+			        )
+			    RETURN
+			        FORMAT ( ValueToFormat, FormatPattern ) // Helper function to format the difference
+			VAR FormatDifference =
+			    VAR DiffValue =
+			        ABS ( Difference )
+			    VAR FormatPattern =
+			        SWITCH (
+			            TRUE (),
+			            // Format for differences up to 1,000
+			            DiffValue <= 1E3, "#,##00",
+			            // Format for differences in thousands (K)
+			            DiffValue <= 1E6, "#,##0,.00 K",
+			            // Format for differences in millions (M)
+			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            // Format for differences in billions (G)
+			            "#,##0,,,.00 G"
+			        ) // Determine arrow symbol based on direction
+			    VAR Symbol =
+			        SWITCH (
+			            TRUE (),
+			            Difference > 0, "▲ ",
+			            // Up arrow for positive difference
+			            Difference < 0, "▼ ",
+			            // Down arrow for negative difference
+			            "= " // Equal sign for no change
+			        )
+			    RETURN
+			        Symbol & FORMAT ( DiffValue, FormatPattern ) // Return formatted string
+			RETURN
+			    IF (
+			        // Check if both values are available
+			        NOT ISBLANK ( PreviousValue ) && NOT ISBLANK ( CurrentValue ),
+			        // Format: "PreviousMonthValue | Arrow DifferenceValue"
+			        FormatPreviousMonth & " | " & FormatDifference,
+			        // Return message if data is missing
+			        "No data available"
+			    )
+		displayFolder: 🎨 Formatting\Month-over-Month Titles
+		lineageTag: dd804c7f-ce40-423e-833c-b00804d9e6fe
+
+	/// Color indicator for Units Sold based on month-over-month trend
+	measure 'Units Sold (Color)' =
+			
+			VAR _pm =
+			    CALCULATE ( [Units Sold], PREVIOUSMONTH ( 'calendar'[Date] ) )
+			VAR Result =
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( _pm ), "Orange",
+			        [Units Sold] > _pm, "Green",
+			        [Units Sold] < _pm, "Red"
+			    )
+			RETURN
+			    Result
+		displayFolder: 🎨 Formatting\Conditional Colors
+		lineageTag: 5555e1e3-014b-4224-89d5-2c50dc76834c
+
+	/// Highlight color when Profit is the selected measure
+	measure 'Profit (Color v2)' =
+			
+			SWITCH (
+			    TRUE (),
+			    SELECTEDVALUE ( _Measures[Value2] ) = "Profit", "#E6E6E6",
+			    BLANK ()
+			)
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: f7eece15-fef8-42df-90b3-3d05680a4699
+
+	/// Highlight color when COGS is the selected measure
+	measure 'COGS (Color v2)' =
+			
+			SWITCH (
+			    TRUE (),
+			    SELECTEDVALUE ( _Measures[Value2] ) = "COGS", "#E6E6E6",
+			    BLANK ()
+			)
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: 95d0b0d6-28fd-45d2-88c0-74633b9f163a
+
+	/// Highlight color when Gross Sales is the selected measure
+	measure 'Gross Sales (Color v2)' =
+			
+			SWITCH (
+			    TRUE (),
+			    SELECTEDVALUE ( _Measures[Value2] ) = "Gross Sales", "#E6E6E6",
+			    BLANK ()
+			)
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: bcddbff1-1608-4306-8a92-24e04745ec29
+
+	/// Highlight color when Sales is the selected measure
+	measure 'Sales (Color v2)' =
+			
+			SWITCH (
+			    TRUE (),
+			    SELECTEDVALUE ( _Measures[Value2] ) = "Sales", "#E6E6E6",
+			    BLANK ()
+			)
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: 84a35d7c-5f3a-46ee-9eb3-101d5af2d2a9
+
+	/// Highlight color when Units Sold is the selected measure
+	measure 'Units Sold (Color v2)' =
+			
+			SWITCH (
+			    TRUE (),
+			    SELECTEDVALUE ( _Measures[Value2] ) = "Units Sold", "#E6E6E6",
+			    BLANK ()
+			)
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: caca9945-f140-4de0-ab58-a7f6c537059a
+
+	/// Selected country name for display purposes
+	measure Country =
+			
+			SELECTEDVALUE ( financials[Country] )
+		displayFolder: 🏷️ Context Labels
+		lineageTag: d893d2be-b072-42a9-a841-7f52c16e1405
+
+	/// Percentage of total for the selected measure
+	measure PctofTotal =
+			
+			DIVIDE (
+			    [Measure],
+			    CALCULATE (
+			        [Measure],
+			        ALL ( financials[Product] ),
+			        ALL ( financials[Segment] )
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: 📈 Analytics\Comparisons
+		lineageTag: b88ec247-a49a-439e-a23b-5222e2a29ae1
+
+	/// Selected product name for display purposes
+	measure Product =
+			
+			SELECTEDVALUE ( financials[Product] )
+		displayFolder: 🏷️ Context Labels
+		lineageTag: 568ba38d-5f93-4598-a382-8b8704b5c511
+
+	/// Rank position by country for the selected measure
+	measure Rank =
+			
+			RANKX ( ALL ( financials[Country] ), [Measure],, DESC )
+		formatString: 0
+		displayFolder: 📈 Analytics\Rankings
+		lineageTag: 803f1145-c86a-4136-8602-9c1c9db205d9
+
+	/// Formatted rank with measure value for table display
+	measure 'Rank (Table)' =
+			
+			RANKX ( ALL ( financials[Country] ), [Measure],, DESC ) & " | ("
+			    & FORMAT ( [Measure], "#,,#,.00 K" ) & ")"
+		displayFolder: 📈 Analytics\Rankings
+		lineageTag: 6d9aacfc-fcaf-4de8-8390-1e0e9646b728
+
+	/// Selected segment name for display purposes
+	measure Segment =
+			
+			VAR __DISTINCT_VALUES_COUNT =
+			    DISTINCTCOUNT ( 'financials'[Segment] )
+			VAR __MAX_VALUES_TO_SHOW = 5
+			RETURN
+			    IF (
+			        __DISTINCT_VALUES_COUNT > __MAX_VALUES_TO_SHOW,
+			        CONCATENATE (
+			            CONCATENATEX (
+			                TOPN (
+			                    __MAX_VALUES_TO_SHOW,
+			                    VALUES ( 'financials'[Segment] ),
+			                    'financials'[Segment], ASC
+			                ),
+			                'financials'[Segment],
+			                ", ",
+			                'financials'[Segment], ASC
+			            ),
+			            ", etc."
+			        ),
+			        CONCATENATEX (
+			            VALUES ( 'financials'[Segment] ),
+			            'financials'[Segment],
+			            ", ",
+			            'financials'[Segment], ASC
+			        )
+			    )
+		displayFolder: 🏷️ Context Labels
+		lineageTag: 1dd4b33e-fce8-4a4c-86d1-1aeafb12c7f3
+
+		extendedProperty MeasureTemplate = {"version":0,"daxTemplateName":"ConcatenateValues"}
+
+		changedProperty = FormatString
+
+	/// Custom tooltip content with product, segment, and measure details
+	measure Tooltip =
+			
+			VAR ProductText = "Displayed Product: " & [Product]
+			VAR SegmentText = "Displayed Segment: " & [Segment] // Format measure with K/M units (2 decimal places)
+			VAR MeasureText =
+			    VAR MeasureValue = [Measure]
+			    VAR FormattedMeasure =
+			        SWITCH (
+			            TRUE (),
+			            ABS ( MeasureValue ) < 1000, FORMAT ( MeasureValue, "0" ),
+			            ABS ( MeasureValue ) < 10000, FORMAT ( MeasureValue, "#,##0" ),
+			            ABS ( MeasureValue ) < 1000000,
+			                FORMAT ( MeasureValue / 1000, "0.00" ) & " K",
+			            ABS ( MeasureValue ) < 10000000,
+			                FORMAT ( MeasureValue / 1000000, "0.00" ) & " M",
+			            FORMAT ( MeasureValue / 1000000, "0.0" ) & " M"
+			        )
+			    RETURN
+			        "Selected Measure: " & FormattedMeasure // Format total with K/M units (2 decimal places)
+			VAR TotalText =
+			    VAR TotalValue = [Total]
+			    VAR FormattedTotal =
+			        SWITCH (
+			            TRUE (),
+			            ABS ( TotalValue ) < 1000, FORMAT ( TotalValue, "0" ),
+			            ABS ( TotalValue ) < 10000, FORMAT ( TotalValue, "#,##0" ),
+			            ABS ( TotalValue ) < 1000000,
+			                FORMAT ( TotalValue / 1000, "0.00" ) & " K",
+			            ABS ( TotalValue ) < 10000000,
+			                FORMAT ( TotalValue / 1000000, "0.00" ) & " M",
+			            FORMAT ( TotalValue / 1000000, "0.0" ) & " M"
+			        )
+			    RETURN
+			        "Grand Total: " & FormattedTotal
+			VAR PctText =
+			    "Pct of GT: " & FORMAT ( [PctofTotal], "0.00%" )
+			RETURN
+			    ProductText & UNICHAR ( 10 ) & SegmentText & UNICHAR ( 10 ) & MeasureText
+			        & UNICHAR ( 10 ) & TotalText
+			        & UNICHAR ( 10 ) & PctText
+		displayFolder: 💬 Tooltips
+		lineageTag: 7dda535b-5227-4185-b8db-73b905b82891
+
+	/// Title text for custom tooltips
+	measure 'Tooltip (Title)' =
+			
+			"Custom Tooltip"
+		displayFolder: 💬 Tooltips
+		lineageTag: fa8cb898-7fb1-46a0-959f-1056482dbde7
+
+	/// Grand total across all products and segments
+	measure Total =
+			
+			CALCULATE (
+			    [Measure],
+			    ALL ( financials[Product] ),
+			    ALL ( financials[Segment] ),
+			    ALLSELECTED ( financials[Country] )
+			)
+		displayFolder: 📈 Analytics\Comparisons
+		lineageTag: 44dd9711-aa80-451a-b196-8bf8bafa8365
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Highlight color for rank 1 position
+	measure 'Rank (Color v2)' =
+			
+			VAR _rank =
+			    SWITCH ( TRUE (), LEFT ( [Rank (Table)], 1 ) = "1", "Green", BLANK () )
+			VAR Result = _rank
+			RETURN
+			    Result
+		displayFolder: 🎨 Formatting\Selection Highlights
+		lineageTag: b629de58-1362-4f6e-a37d-9cc5b97728c3
+
+	/// Description of ranking criteria and measure selection
+	measure 'Position based on' =
+			
+			"Position based on: " & UNICHAR ( 10 ) & SELECTEDVALUE ( _Measures[Value2] ) & " ( as the chosen measure ), "
+			    & UNICHAR ( 10 )
+			    & SELECTEDVALUE ( financials[Country] ) & " ( as the country under analysis ), "
+			    & UNICHAR ( 10 )
+			    & SELECTEDVALUE ( 'calendar'[Year Month] ) & " ( selected date ) "
+		displayFolder: 🔧 Dynamic Calculations
+		lineageTag: ec09321e-883e-4df2-b488-178d4259777a
+
+	column Value
+		isHidden
+		lineageTag: 22760aad-023c-4804-95f4-ce79d2b223c9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DAX = calculated
+		mode: import
+		source = { "" }
+
+	annotation PBI_Id = be28a2e58ab94cb7bf35dc44763534b6
+
