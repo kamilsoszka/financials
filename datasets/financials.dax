@@ -1,0 +1,22 @@
+﻿EVALUATE
+FILTER (
+    SUMMARIZE (
+        financials,
+        financials[Country],
+        financials[Date],
+        financials[Product],
+        financials[Segment],
+        "Sales", SUM ( financials[Sales] ),
+        "GT",
+            FORMAT (
+                CALCULATE (
+                    SUM ( financials[Sales] ),
+                    ALLSELECTED ( financials[Product], financials[Segment] )
+                ),
+                "#,,#,,.00 M"
+            )
+    ),
+    financials[Country] = "United States of America"
+        && financials[Date] = DATE ( 2014, 12, 1 )
+)
+ORDER BY financials[Product]
