@@ -1,22 +1,57 @@
-﻿EVALUATE
-FILTER (
-    SUMMARIZE (
-        financials,
-        financials[Country],
-        financials[Date],
-        financials[Product],
-        financials[Segment],
-        "Sales", SUM ( financials[Sales] ),
-        "GT",
-            FORMAT (
-                CALCULATE (
-                    SUM ( financials[Sales] ),
-                    ALLSELECTED ( financials[Product], financials[Segment] )
-                ),
-                "#,,#,,.00 M"
-            )
-    ),
-    financials[Country] = "United States of America"
-        && financials[Date] = DATE ( 2014, 12, 1 )
-)
-ORDER BY financials[Product]
+﻿// DAX Query
+DEFINE
+    VAR __DS0FilterTable =
+        TREATAS ( { "2014 Dec" }, 'calendar'[Year Month] )
+    VAR __DS0FilterTable2 =
+        TREATAS ( { "United States of America" }, 'financials'[Country] )
+    VAR __DS0FilterTable3 =
+        TREATAS ( { "Sales" }, '_Measures'[Value2] )
+    VAR __ValueFilterDM3 =
+        FILTER (
+            KEEPFILTERS (
+                SUMMARIZECOLUMNS (
+                    'financials'[Product],
+                    'financials'[Segment],
+                    __DS0FilterTable,
+                    __DS0FilterTable2,
+                    __DS0FilterTable3,
+                    "Dynamic_Measure", '_Measures'[Dynamic Measure],
+                    "% GT",
+                        DIVIDE (
+                            '_Measures'[Dynamic Measure],
+                            CALCULATE (
+                                '_Measures'[Dynamic Measure],
+                                ALLSELECTED ( 'financials'[Product] ),
+                                ALLSELECTED ( 'financials'[Segment] )
+                            )
+                        )
+                )
+            ),
+            NOT ( ISBLANK ( [Dynamic_Measure] ) )
+        )
+    VAR __DS0Core =
+        SUMMARIZECOLUMNS (
+            'financials'[Product],
+            'financials'[Segment],
+            __DS0FilterTable,
+            __DS0FilterTable2,
+            __DS0FilterTable3,
+            __ValueFilterDM3,
+            "Dynamic_Measure", FORMAT ( '_Measures'[Dynamic Measure], "#,,#,.00 K" ),
+            "% GT",
+                FORMAT (
+                    DIVIDE (
+                        '_Measures'[Dynamic Measure],
+                        CALCULATE (
+                            '_Measures'[Dynamic Measure],
+                            ALLSELECTED ( 'financials'[Product] ),
+                            ALLSELECTED ( 'financials'[Segment] )
+                        )
+                    ),
+                    "0.00%"
+                )
+        )
+
+EVALUATE
+__DS0Core
+ORDER BY 'financials'[Product]
