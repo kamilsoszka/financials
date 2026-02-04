@@ -1,5 +1,5 @@
 -- Main query to retrieve sales data with percentage calculations
-SELECT 
+SELECT
   TOP (1000001) * 
 FROM 
   (
@@ -33,74 +33,74 @@ FROM
       -- 2. Specific country: United States of America
       -- 3. Complex product/segment combinations using OR logic
       (
-        ([t0].[Year Month] = N '2014 Dec') 
+        ([t0].[Year Month] = '2014 Dec') 
         AND (
-          [t1].[Country] = N 'United States of America'
+          [t1].[Country] = 'United States of America'
         )
       ) 
       AND (
         -- First set of product/segment combinations
         (
           (
-            ([t1].[Product] = N 'Amarilla') 
-            AND ([t1].[Segment] = N 'Midmarket')
+            ([t1].[Product] = 'Amarilla') 
+            AND ([t1].[Segment] = 'Midmarket')
           ) 
           OR (
-            ([t1].[Product] = N 'Montana') 
-            AND ([t1].[Segment] = N 'Midmarket')
+            ([t1].[Product] = 'Montana') 
+            AND ([t1].[Segment] = 'Midmarket')
           )
         ) 
         OR -- Second set of product/segment combinations
         (
           (
-            ([t1].[Product] = N 'Amarilla') 
+            ([t1].[Product] = 'Amarilla') 
             AND (
-              [t1].[Segment] = N 'Small Business'
+              [t1].[Segment] = 'Small Business'
             )
           ) 
           OR (
-            ([t1].[Product] = N 'Velo') 
+            ([t1].[Product] = 'Velo') 
             AND (
-              [t1].[Segment] = N 'Small Business'
+              [t1].[Segment] = 'Small Business'
             )
           )
         ) 
         OR -- Third set of product/segment combinations
         (
           (
-            ([t1].[Product] = N 'Carretera') 
-            AND ([t1].[Segment] = N 'Government')
+            ([t1].[Product] = 'Carretera') 
+            AND ([t1].[Segment] = 'Government')
           ) 
           OR (
-            ([t1].[Product] = N 'Montana') 
-            AND ([t1].[Segment] = N 'Enterprise')
+            ([t1].[Product] = 'Montana') 
+            AND ([t1].[Segment] = 'Enterprise')
           ) 
           OR (
-            ([t1].[Product] = N 'Paseo') 
-            AND ([t1].[Segment] = N 'Enterprise')
+            ([t1].[Product] = 'Paseo') 
+            AND ([t1].[Segment] = 'Enterprise')
           )
         ) 
         OR -- Fourth set of product/segment combinations
         (
           (
-            ([t1].[Product] = N 'Paseo') 
+            ([t1].[Product] = 'Paseo') 
             AND (
-              [t1].[Segment] = N 'Channel Partners'
+              [t1].[Segment] = 'Channel Partners'
             )
           ) 
           OR (
-            ([t1].[Product] = N 'Velo') 
+            ([t1].[Product] = 'Velo') 
             AND (
-              [t1].[Segment] = N 'Channel Partners'
+              [t1].[Segment] = 'Channel Partners'
             )
           ) 
           OR (
-            ([t1].[Product] = N 'Paseo') 
-            AND ([t1].[Segment] = N 'Government')
+            ([t1].[Product] = 'Paseo') 
+            AND ([t1].[Segment] = 'Government')
           ) 
           OR (
-            ([t1].[Product] = N 'VTT') 
-            AND ([t1].[Segment] = N 'Government')
+            ([t1].[Product] = 'VTT') 
+            AND ([t1].[Segment] = 'Government')
           )
         )
       ) -- Group by both dimensions to get aggregated sales per combination
