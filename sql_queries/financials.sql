@@ -1,3 +1,4 @@
+-- Enter the password into the database and select the appropriate database
 -- Main query to retrieve sales data with percentage calculations
 SELECT
   TOP (1000001) * 
@@ -115,3 +116,63 @@ WHERE
   ) -- Sort results alphabetically by product name
 ORDER BY 
   [Product];
+
+--group 01
+select
+   c.year,
+   [Year Month Number],
+   sum(sales) 
+from
+   v_calendar c 
+   left join
+      v_financials f 
+      on c.Date = f.Date 
+group by
+   rollup (c.[year], [Year Month Number]) 
+order by
+   [Year Month Number] 
+--group 02
+   select
+      c.year,
+      [Year Month Number],
+      sum(sales) 
+   from
+      v_calendar c 
+      left join
+         v_financials f 
+         on c.Date = f.Date 
+   group by
+      cube (c.[year], [Year Month Number]) 
+   order by
+      [Year Month Number] 
+--group 03
+      select
+         c.year,
+         [Year Month Number],
+         sum(sales) 
+      from
+         v_calendar c 
+         left join
+            v_financials f 
+            on c.Date = f.Date 
+      group by
+         grouping sets (rollup(c.[year], [Year Month Number]), cube(c.[year], [Year Month Number]) ) 
+      order by
+         [Year Month Number] 
+--group 04
+         select
+            c.year,
+            [Year Month Number],
+            sum(sales) 
+         from
+            v_calendar c 
+            left join
+               v_financials f 
+               on c.Date = f.Date 
+         group by
+            grouping sets (c.[year], [Year Month Number]) 
+         order by
+            [Year Month Number] 			
+            
+
+--https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver17
