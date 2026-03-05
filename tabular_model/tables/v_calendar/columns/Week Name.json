@@ -1,0 +1,8 @@
+{
+  "name": "Week Name",
+  "dataType": "string",
+  "sourceColumn": "Week Name",
+  "sortByColumn": "Week Number",
+  "sourceProviderType": "nvarchar",
+  "lineageTag": "872f3f65-ddac-4819-9459-34cbebf9794a"
+}

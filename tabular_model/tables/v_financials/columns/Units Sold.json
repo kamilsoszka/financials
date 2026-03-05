@@ -1,0 +1,7 @@
+{
+  "name": "Units Sold",
+  "dataType": "double",
+  "sourceColumn": "Units Sold",
+  "sourceProviderType": "float",
+  "lineageTag": "84c0d73e-9e3f-4d06-967e-9e08f7b276c0"
+}

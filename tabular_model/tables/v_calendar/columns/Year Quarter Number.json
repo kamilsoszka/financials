@@ -1,0 +1,7 @@
+{
+  "name": "Year Quarter Number",
+  "dataType": "int64",
+  "sourceColumn": "Year Quarter Number",
+  "sourceProviderType": "bigint",
+  "lineageTag": "7a78f5c2-d42d-4b65-ab92-65d74d5a9cc6"
+}

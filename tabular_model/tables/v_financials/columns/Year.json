@@ -1,0 +1,7 @@
+{
+  "name": "Year",
+  "dataType": "string",
+  "sourceColumn": "Year",
+  "sourceProviderType": "nvarchar",
+  "lineageTag": "a6bec1ae-9ffb-40b9-a00d-2f84d1cd32d2"
+}

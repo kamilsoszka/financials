@@ -1,0 +1,89 @@
+DEFINE
+	VAR _date = "2014 Dec"
+	VAR _country = "United States of America"
+	MEASURE financials[gross sales] =
+		SUM(financials[gross sales])
+	MEASURE financials[cogs] =
+		SUM(financials[cogs])
+	MEASURE financials[sales amount] =
+		SUM(financials[sales])
+	MEASURE financials[profit] =
+		SUM(financials[profit])
+	MEASURE financials[units sold] =
+		SUM(financials[units sold])
+
+
+EVALUATE
+	{
+
+		FORMAT(
+			CALCULATE(
+				[gross sales],
+				FILTER(
+					calendar,
+					calendar[Year Month] = _date
+				),
+				FILTER(
+					financials,
+					financials[Country] = _country
+				)
+			),
+			"$#,,#,,.00M"
+		),
+		FORMAT(
+			CALCULATE(
+				[cogs],
+				FILTER(
+					calendar,
+					calendar[Year Month] = _date
+				),
+				FILTER(
+					financials,
+					financials[Country] = _country
+				)
+			),
+			"$#,,#,,.00M"
+		),
+		FORMAT(
+			CALCULATE(
+				[sales amount],
+				FILTER(
+					calendar,
+					calendar[Year Month] = _date
+				),
+				FILTER(
+					financials,
+					financials[Country] = _country
+				)
+			),
+			"$#,,#,,.00M"
+		),
+		FORMAT(
+			CALCULATE(
+				[profit],
+				FILTER(
+					calendar,
+					calendar[Year Month] = _date
+				),
+				FILTER(
+					financials,
+					financials[Country] = _country
+				)
+			),
+			"$#,,#,.00K"
+		),
+		FORMAT(
+			CALCULATE(
+				[units sold],
+				FILTER(
+					calendar,
+					calendar[Year Month] = _date
+				),
+				FILTER(
+					financials,
+					financials[Country] = _country
+				)
+			),
+			"$#,,#,.00K"
+		)
+	}

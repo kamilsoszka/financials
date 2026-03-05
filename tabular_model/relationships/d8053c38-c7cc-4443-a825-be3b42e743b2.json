@@ -1,0 +1,7 @@
+{
+  "name": "d8053c38-c7cc-4443-a825-be3b42e743b2",
+  "fromTable": "v_financials",
+  "fromColumn": "Date",
+  "toTable": "v_calendar",
+  "toColumn": "Date"
+}

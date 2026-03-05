@@ -1,0 +1,8 @@
+{
+  "name": "Year Quarter",
+  "dataType": "string",
+  "sourceColumn": "Year Quarter",
+  "sortByColumn": "Year Quarter Number",
+  "sourceProviderType": "nvarchar",
+  "lineageTag": "9b71a54e-401d-4ff0-a97c-6c788e4e4dde"
+}

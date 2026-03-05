@@ -1,0 +1,24 @@
+{
+  "name": "Date Hierarchy",
+  "lineageTag": "a6964c34-1fca-4e1a-81f3-d945d6a8bc20",
+  "levels": [
+    {
+      "name": "Year",
+      "ordinal": 0,
+      "column": "Year",
+      "lineageTag": "55692689-3efb-4dae-ab91-10f80a40cfa9"
+    },
+    {
+      "name": "Year Quarter",
+      "ordinal": 1,
+      "column": "Year Quarter",
+      "lineageTag": "5122d585-aaa8-4e90-b587-8ee67b1b9f9c"
+    },
+    {
+      "name": "Year Month",
+      "ordinal": 2,
+      "column": "Year Month",
+      "lineageTag": "e076f9e1-f7b2-47fc-8242-90e2c3de7d43"
+    }
+  ]
+}

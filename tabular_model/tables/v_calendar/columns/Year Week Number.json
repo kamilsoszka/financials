@@ -1,0 +1,7 @@
+{
+  "name": "Year Week Number",
+  "dataType": "int64",
+  "sourceColumn": "Year Week Number",
+  "sourceProviderType": "bigint",
+  "lineageTag": "f3bb3e3f-9ace-41cd-a196-fa2c1142158e"
+}

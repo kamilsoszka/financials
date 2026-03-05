@@ -1,0 +1,7 @@
+{
+  "name": "Gross Sales",
+  "dataType": "double",
+  "sourceColumn": "Gross Sales",
+  "sourceProviderType": "float",
+  "lineageTag": "9ec65218-0394-4878-a694-8ba59615c1f3"
+}

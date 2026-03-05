@@ -8,11 +8,11 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBI_QueryOrder = ["financials"]
+annotation PBI_QueryOrder = ["financials","TableProfile_financials"]
 
 annotation __TEdtr = 1
 
-annotation PBI_ProTooling = ["TMDLView_Desktop","MCP-PBIModeling","DevMode"]
+annotation PBI_ProTooling = ["TMDLView_Desktop","MCP-PBIModeling","DaxQueryView_Desktop","DevMode"]
 
 ref table financials
 ref table DAX

@@ -1,0 +1,19 @@
+{
+  "name": "v_calendar",
+  "source": {
+    "type": "query",
+    "query": [
+      "SELECT",
+      "\t*",
+      "FROM",
+      "\t[dbo].[v_calendar]"
+    ],
+    "dataSource": "DESKTOP-PONL6H6\\MSSQLSERVER01 financials"
+  },
+  "annotations": [
+    {
+      "name": "TabularEditor_TableSchema",
+      "value": "{\"Name\":\"v_calendar\",\"Schema\":\"dbo\",\"Database\":\"financials\",\"IncludedColumns\":[\"Date\",\"Year\",\"Year Quarter Number\",\"Year Quarter\",\"Quarter\",\"Year Month Number\",\"Year Month\",\"Month\",\"Month Short\",\"Week Number\",\"Year Week Number\",\"Year Week\",\"Week Name\"],\"SelectAll\":true}"
+    }
+  ]
+}

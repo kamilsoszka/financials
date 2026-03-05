@@ -32,7 +32,7 @@ table DAX
 			    SUM ( financials[Units Sold] )
 			RETURN
 			    TotalUnits
-		formatString: #,0
+		formatString: #,0.00
 		displayFolder: 📊 Core Metrics
 		lineageTag: 1bed5bc4-b66a-4151-b716-bc4ff20b96b6
 
@@ -113,11 +113,11 @@ table DAX
 			            TRUE (),
 			            AbsValue <= 1E3, "#,##00",
 			            -- Up to 1,000
-			            AbsValue <= 1E6, "#,##0,.00 K",
+			            AbsValue <= 1E6, "#,##0,.00K",
 			            -- Thousands
-			            AbsValue <= 1E9, "#,##0,,.00 M",
+			            AbsValue <= 1E9, "#,##0,,.00M",
 			            -- Millions  
-			            "#,##0,,,.00 G" -- Billions
+			            "#,##0,,,.00G" -- Billions
 			        )
 			    RETURN
 			        FORMAT ( ValueToFormat, FormatPattern ) -- Helper function: Format the difference with smart units and arrow
@@ -129,11 +129,11 @@ table DAX
 			            TRUE (),
 			            DiffValue <= 1E3, "#,##00",
 			            -- Up to 1,000
-			            DiffValue <= 1E6, "#,##0,.00 K",
+			            DiffValue <= 1E6, "#,##0,.00K",
 			            -- Thousands
-			            DiffValue <= 1E9, "#,##0,,.00 M",
+			            DiffValue <= 1E9, "#,##0,,.00M",
 			            -- Millions
-			            "#,##0,,,.00 G" -- Billions
+			            "#,##0,,,.00G" -- Billions
 			        ) -- Determine arrow symbol based on direction
 			    VAR Symbol =
 			        SWITCH (
@@ -228,9 +228,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            AbsValue <= 1E3, "#,##00",
-			            AbsValue <= 1E6, "#,##0,.00 K",
-			            AbsValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            AbsValue <= 1E6, "#,##0,.00K",
+			            AbsValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    RETURN
 			        FORMAT ( ValueToFormat, FormatPattern )
@@ -241,9 +241,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            DiffValue <= 1E3, "#,##00",
-			            DiffValue <= 1E6, "#,##0,.00 K",
-			            DiffValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            DiffValue <= 1E6, "#,##0,.00K",
+			            DiffValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    VAR Symbol =
 			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
@@ -312,9 +312,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            AbsValue <= 1E3, "#,##00",
-			            AbsValue <= 1E6, "#,##0,.00 K",
-			            AbsValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            AbsValue <= 1E6, "#,##0,.00K",
+			            AbsValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    RETURN
 			        FORMAT ( ValueToFormat, FormatPattern )
@@ -325,9 +325,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            DiffValue <= 1E3, "#,##00",
-			            DiffValue <= 1E6, "#,##0,.00 K",
-			            DiffValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            DiffValue <= 1E6, "#,##0,.00K",
+			            DiffValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    VAR Symbol =
 			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
@@ -396,9 +396,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            AbsValue <= 1E3, "#,##00",
-			            AbsValue <= 1E6, "#,##0,.00 K",
-			            AbsValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            AbsValue <= 1E6, "#,##0,.00K",
+			            AbsValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    RETURN
 			        FORMAT ( ValueToFormat, FormatPattern )
@@ -409,9 +409,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            DiffValue <= 1E3, "#,##00",
-			            DiffValue <= 1E6, "#,##0,.00 K",
-			            DiffValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            DiffValue <= 1E6, "#,##0,.00K",
+			            DiffValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    VAR Symbol =
 			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
@@ -481,9 +481,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            AbsValue <= 1E3, "#,##00",
-			            AbsValue <= 1E6, "#,##0,.00 K",
-			            AbsValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            AbsValue <= 1E6, "#,##0,.00K",
+			            AbsValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    RETURN
 			        FORMAT ( ValueToFormat, FormatPattern )
@@ -494,9 +494,9 @@ table DAX
 			        SWITCH (
 			            TRUE (),
 			            DiffValue <= 1E3, "#,##00",
-			            DiffValue <= 1E6, "#,##0,.00 K",
-			            DiffValue <= 1E9, "#,##0,,.00 M",
-			            "#,##0,,,.00 G"
+			            DiffValue <= 1E6, "#,##0,.00K",
+			            DiffValue <= 1E9, "#,##0,,.00M",
+			            "#,##0,,,.00G"
 			        )
 			    VAR Symbol =
 			        SWITCH ( TRUE (), Difference > 0, "▲ ", Difference < 0, "▼ ", "= " )
@@ -762,7 +762,7 @@ table DAX
 			VAR CountryRank = [Rank] -- Get the current measure value
 			VAR MeasureValue = [Dynamic Measure] -- Format the measure value in thousands (K)
 			VAR FormattedValue =
-			    FORMAT ( MeasureValue, "#,,#,.00 K" -- Format as thousands with 2 decimals
+			    FORMAT ( MeasureValue, "#,,#,.00K" -- Format as thousands with 2 decimals
 			        ) -- Combine rank and formatted value
 			VAR DisplayText = CountryRank & " | (" & FormattedValue & ")"
 			RETURN
@@ -853,10 +853,10 @@ table DAX
 			            AbsoluteValue < 1000, FORMAT ( MeasureValue, "0" ),
 			            AbsoluteValue < 10000, FORMAT ( MeasureValue, "#,##0" ),
 			            AbsoluteValue < 1000000,
-			                FORMAT ( MeasureValue / 1000, "0.00" ) & " K",
+			                FORMAT ( MeasureValue / 1000, "0.00" ) & "K",
 			            AbsoluteValue < 10000000,
-			                FORMAT ( MeasureValue / 1000000, "0.00" ) & " M",
-			            FORMAT ( MeasureValue / 1000000, "0.0" ) & " M"
+			                FORMAT ( MeasureValue / 1000000, "0.00" ) & "M",
+			            FORMAT ( MeasureValue / 1000000, "0.0" ) & "M"
 			        )
 			    RETURN
 			        FormattedText -- Measure display line
@@ -871,10 +871,10 @@ table DAX
 			            AbsoluteValue < 1000, FORMAT ( TotalValue, "0" ),
 			            AbsoluteValue < 10000, FORMAT ( TotalValue, "#,##0" ),
 			            AbsoluteValue < 1000000,
-			                FORMAT ( TotalValue / 1000, "0.00" ) & " K",
+			                FORMAT ( TotalValue / 1000, "0.00" ) & "K",
 			            AbsoluteValue < 10000000,
-			                FORMAT ( TotalValue / 1000000, "0.00" ) & " M",
-			            FORMAT ( TotalValue / 1000000, "0.0" ) & " M"
+			                FORMAT ( TotalValue / 1000000, "0.00" ) & "M",
+			            FORMAT ( TotalValue / 1000000, "0.0" ) & "M"
 			        )
 			    RETURN
 			        FormattedText -- Total display line

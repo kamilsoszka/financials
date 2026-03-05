@@ -1,0 +1,7 @@
+{
+  "name": "Discount Band",
+  "dataType": "string",
+  "sourceColumn": "Discount Band",
+  "sourceProviderType": "nvarchar",
+  "lineageTag": "78336c91-afca-48a2-bbca-9970840b2347"
+}

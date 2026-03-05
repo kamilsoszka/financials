@@ -1,0 +1,22 @@
+expression TableProfile_financials =
+		let
+		    Source = Table.Profile(financials)
+		in
+		    Source
+	lineageTag: e1a9d33a-6366-4bb9-8c5c-fb8776bb00f9
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression TableProfile_calendar =
+		let
+		    Source = Table.Profile(calendar)
+		in
+		    Source
+	lineageTag: 5144aaf8-c424-4c74-a000-ee70d5257514
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

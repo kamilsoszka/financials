@@ -1,0 +1,200 @@
+table financials
+	lineageTag: 5fc0f62a-0d23-4569-b87f-993224944c64
+
+	column Segment
+		dataType: string
+		lineageTag: 843d07a9-8094-4444-acad-256c21015676
+		summarizeBy: none
+		sourceColumn: Segment
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: dd676140-68a3-4367-b9e4-3825030d3e85
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Product
+		dataType: string
+		lineageTag: 804d5d0c-6287-42fa-96aa-39415197a00e
+		summarizeBy: none
+		sourceColumn: Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Discount Band'
+		dataType: string
+		lineageTag: 58449969-2632-4a9d-beec-4d92d4835d8f
+		summarizeBy: none
+		sourceColumn: Discount Band
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Units Sold'
+		dataType: double
+		isHidden
+		lineageTag: 0c0dea47-47fa-4ed8-92e9-5b693e8e20f2
+		summarizeBy: sum
+		sourceColumn: Units Sold
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Manufacturing Price'
+		dataType: double
+		formatString: 0
+		lineageTag: fcce886a-0d91-4091-9bf2-5faa7ae0516f
+		summarizeBy: sum
+		sourceColumn: Manufacturing Price
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sale Price'
+		dataType: double
+		formatString: 0
+		lineageTag: 00230b60-364b-4ecb-ab80-a8314df3b71e
+		summarizeBy: sum
+		sourceColumn: Sale Price
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Gross Sales'
+		dataType: double
+		isHidden
+		lineageTag: 0d4b39e1-43e2-4708-bb0c-17c2aba3a072
+		summarizeBy: sum
+		sourceColumn: Gross Sales
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Discounts
+		dataType: double
+		lineageTag: 9fe290c2-db6c-403c-9211-2332d4fc9000
+		summarizeBy: sum
+		sourceColumn: Discounts
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Sales
+		dataType: double
+		isHidden
+		lineageTag: 4f41096a-846f-48af-bc43-79ee6ee896f8
+		summarizeBy: sum
+		sourceColumn: Sales
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column COGS
+		dataType: double
+		isHidden
+		lineageTag: fc97ad97-c7a9-4af5-9e71-c7d77655f894
+		summarizeBy: sum
+		sourceColumn: COGS
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Profit
+		dataType: double
+		isHidden
+		lineageTag: 1558c3e6-831e-4dca-b0c1-933379e0b85e
+		summarizeBy: sum
+		sourceColumn: Profit
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b776de8e-3c2c-472e-a76a-b4760276a944
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Month Number'
+		dataType: double
+		formatString: 0
+		lineageTag: ec92a34a-a15d-46e1-a43f-b22234e30bf2
+		summarizeBy: sum
+		sourceColumn: Month Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		dataType: string
+		lineageTag: 1777910b-c62a-48c6-8888-ba5f05f9a489
+		summarizeBy: none
+		sourceColumn: Month Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: string
+		lineageTag: 826a21bf-7cd6-4424-9507-42b1813801d8
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	partition financials = m
+		mode: import
+		source =
+				// Power Query (M)
+				// Load the "financials" entity from a specific Power Platform Dataflow
+				
+				let
+				    // 1) Connect to the Power Platform Dataflows connector.
+				    //    'null' means using the default environment context.
+				    Source = PowerPlatform.Dataflows(null),
+				
+				    // 2) From the connector output, extract the "Workspaces" table.
+				    //    It contains all workspaces accessible to the signed‑in user.
+				    Workspaces = Source{[Id = "Workspaces"]}[Data],
+				
+				    // 3) Select a workspace by its GUID (workspaceId) and extract its Data table.
+				    Workspace_Selected =
+				        Workspaces{[workspaceId = "3ba57f0e-47dc-4868-8b0e-88d61d5e442c"]}[Data],
+				
+				    // 4) Inside this workspace, select the desired Dataflow by its dataflowId.
+				    Dataflow_Selected =
+				        Workspace_Selected{[dataflowId = "32720a24-761e-4883-abc6-61e2ee994765"]}[Data],
+				
+				    // 5) From the Dataflow, load the entity named "financials".
+				    //    version = "" usually returns the default (most recent) version.
+				    Financials_Entity =
+				        Dataflow_Selected{[entity = "financials", version = ""]}[Data]
+				
+				in
+				    // 6) Output the final entity as a table
+				    Financials_Entity
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

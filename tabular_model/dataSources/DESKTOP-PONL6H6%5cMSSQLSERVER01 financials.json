@@ -1,0 +1,6 @@
+{
+  "name": "DESKTOP-PONL6H6\\MSSQLSERVER01 financials",
+  "connectionString": "data source=DESKTOP-PONL6H6\\MSSQLSERVER01;initial catalog=financials;user id=sa",
+  "impersonationMode": "impersonateServiceAccount",
+  "provider": "System.Data.SqlClient"
+}

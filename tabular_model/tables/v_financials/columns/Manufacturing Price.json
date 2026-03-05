@@ -1,0 +1,7 @@
+{
+  "name": "Manufacturing Price",
+  "dataType": "double",
+  "sourceColumn": "Manufacturing Price",
+  "sourceProviderType": "float",
+  "lineageTag": "bd4a1297-f839-481a-b655-beba16582f85"
+}

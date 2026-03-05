@@ -1,0 +1,8 @@
+{
+  "name": "Year Week",
+  "dataType": "string",
+  "sourceColumn": "Year Week",
+  "sortByColumn": "Year Week Number",
+  "sourceProviderType": "nvarchar",
+  "lineageTag": "ef0fd24b-49f4-420f-b9fc-70db911b64a4"
+}

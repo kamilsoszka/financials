@@ -1,0 +1,19 @@
+{
+  "name": "v_financials",
+  "source": {
+    "type": "query",
+    "query": [
+      "SELECT",
+      "\t*",
+      "FROM",
+      "\t[dbo].[v_financials]"
+    ],
+    "dataSource": "DESKTOP-PONL6H6\\MSSQLSERVER01 financials"
+  },
+  "annotations": [
+    {
+      "name": "TabularEditor_TableSchema",
+      "value": "{\"Name\":\"v_financials\",\"Schema\":\"dbo\",\"Database\":\"financials\",\"IncludedColumns\":[\"Segment\",\"Country\",\"Product\",\"Discount Band\",\"Units Sold\",\"Manufacturing Price\",\"Sale Price\",\"Gross Sales\",\"Discounts\",\"Sales\",\"COGS\",\"Profit\",\"Date\",\"Month Number\",\"Month Name\",\"Year\"],\"SelectAll\":true}"
+    }
+  ]
+}

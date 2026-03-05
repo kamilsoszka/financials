@@ -11,13 +11,13 @@
       "type": "SharedResources"
     },
     "customTheme": {
-      "name": "Storm",
+      "name": "Storm2132993529089411.json",
       "reportVersionAtImport": {
         "visual": "2.5.0",
         "report": "3.1.0",
         "page": "2.3.0"
       },
-      "type": "SharedResources"
+      "type": "RegisteredResources"
     }
   },
   "objects": {
@@ -59,11 +59,6 @@
           "type": "BaseTheme"
         },
         {
-          "name": "Storm",
-          "path": "BuiltInThemes/Storm.json",
-          "type": "CustomTheme"
-        },
-        {
           "name": "france.regions.v2.topo",
           "path": "Shapemaps/france.regions.v2.topo.json",
           "type": "ShapeMap"
@@ -103,6 +98,11 @@
           "name": "export_data5337886740732875.jpg",
           "path": "export_data5337886740732875.jpg",
           "type": "Image"
+        },
+        {
+          "name": "Storm2132993529089411.json",
+          "path": "Storm2132993529089411.json",
+          "type": "CustomTheme"
         }
       ]
     }

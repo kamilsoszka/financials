@@ -1,0 +1,7 @@
+{
+  "name": "Sale Price",
+  "dataType": "double",
+  "sourceColumn": "Sale Price",
+  "sourceProviderType": "float",
+  "lineageTag": "e10ca813-5354-4101-9ace-02ee24113f5c"
+}

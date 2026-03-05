@@ -1,0 +1,7 @@
+{
+  "name": "Year Month Number",
+  "dataType": "int64",
+  "sourceColumn": "Year Month Number",
+  "sourceProviderType": "bigint",
+  "lineageTag": "3e23b1f8-9b90-4ea1-8f24-4152081fcbae"
+}

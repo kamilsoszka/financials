@@ -1,0 +1,7 @@
+{
+  "name": "Month Number",
+  "dataType": "double",
+  "sourceColumn": "Month Number",
+  "sourceProviderType": "float",
+  "lineageTag": "d7231347-e661-460f-8a2e-04c66b738dc6"
+}

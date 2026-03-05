@@ -1,0 +1,171 @@
+table calendar
+	lineageTag: afaf6b51-deb6-4bea-9885-160e68575495
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: 1bca2213-0ba9-430e-806f-adfb8583a715
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 6df332c1-cf58-4c77-a882-c2aec039b576
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Quarter Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f753387-5082-4eaa-a005-905c9d59d79d
+		summarizeBy: none
+		sourceColumn: Year Quarter Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Quarter'
+		dataType: string
+		lineageTag: 668eed57-3127-4c06-868b-dc9916167db4
+		summarizeBy: none
+		sourceColumn: Year Quarter
+		sortByColumn: 'Year Quarter Number'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: 10332249-2acb-4c62-9d28-6d93d39a36d1
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Month Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: bc32df1e-ca68-4243-921d-f73953b80eea
+		summarizeBy: none
+		sourceColumn: Year Month Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Month'
+		dataType: string
+		lineageTag: c927af69-9db0-46a3-b562-365fd7fac8a6
+		summarizeBy: none
+		sourceColumn: Year Month
+		sortByColumn: 'Year Month Number'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: int64
+		formatString: 0
+		lineageTag: 840b74ae-2603-4a57-bae2-8067236765a2
+		summarizeBy: none
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Short'
+		dataType: string
+		lineageTag: cadc21c2-d33d-4ecb-8753-295f6ee8e1fc
+		summarizeBy: none
+		sourceColumn: Month Short
+		sortByColumn: Month
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 035075c9-a70d-4fc9-bb16-1fb953052f25
+		summarizeBy: none
+		sourceColumn: Week Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Week Number'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ec37780-5502-488c-9e6c-236aa11b504d
+		summarizeBy: none
+		sourceColumn: Year Week Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Week'
+		dataType: string
+		lineageTag: d07c6f04-fa07-4664-91be-025a6934d4c5
+		summarizeBy: none
+		sourceColumn: Year Week
+		sortByColumn: 'Year Week Number'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Name'
+		dataType: string
+		lineageTag: 38b551e0-77d8-4d6c-a6cb-a46743d2ea8f
+		summarizeBy: none
+		sourceColumn: Week Name
+		sortByColumn: 'Week Number'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition calendar = m
+		mode: import
+		source =
+				// Power Query (M)
+				// Load the "calendar" entity from a specific Power Platform Dataflow
+				
+				let
+				    // 1) Connect to Power Platform Dataflows.
+				    //    'null' = use default environment context.
+				    Source = PowerPlatform.Dataflows(null),
+				
+				    // 2) Extract the top-level Workspaces table.
+				    //    This contains all accessible Power BI/Power Platform workspaces.
+				    Workspaces = Source{[Id = "Workspaces"]}[Data],
+				
+				    // 3) Select a specific workspace by its workspaceId (GUID) and get its Data table.
+				    Workspace_Selected =
+				        Workspaces{[workspaceId = "3ba57f0e-47dc-4868-8b0e-88d61d5e442c"]}[Data],
+				
+				    // 4) Inside that workspace, select a dataflow by its dataflowId (GUID).
+				    Dataflow_Selected =
+				        Workspace_Selected{[dataflowId = "32720a24-761e-4883-abc6-61e2ee994765"]}[Data],
+				
+				    // 5) From the selected dataflow, load the "calendar" entity.
+				    //    version = "" typically means the default (latest) version.
+				    Calendar_Entity =
+				        Dataflow_Selected{[entity = "calendar", version = ""]}[Data]
+				
+				in
+				    // 6) Output final table
+				    Calendar_Entity
+
+	changedProperty = Name
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
