@@ -1,10 +1,10 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
   "name": "7f0ce4292ee5b8649a9e",
   "position": {
     "x": 0,
     "y": 0,
-    "z": 9000,
+    "z": 0,
     "height": 64,
     "width": 395,
     "tabOrder": 11000
@@ -310,5 +310,77 @@
     },
     "drillFilterOtherVisuals": true
   },
-  "parentGroupName": "505e203e0511250dec41"
+  "parentGroupName": "505e203e0511250dec41",
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "38d23fdf490670d76ad2",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "financials"
+              }
+            },
+            "Property": "Country"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "f",
+              "Entity": "financials",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "f"
+                          }
+                        },
+                        "Property": "Country"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'United States of America'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      },
+      {
+        "name": "32e0292d0348835059aa",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DAX"
+              }
+            },
+            "Property": "Selected Country"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
 }

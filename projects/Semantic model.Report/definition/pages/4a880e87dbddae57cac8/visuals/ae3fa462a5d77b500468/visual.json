@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
   "name": "ae3fa462a5d77b500468",
   "position": {
     "x": 0,
@@ -7,7 +7,7 @@
     "z": 3000,
     "height": 128,
     "width": 425,
-    "tabOrder": 11003
+    "tabOrder": 2000
   },
   "visual": {
     "visualType": "card",
@@ -104,5 +104,77 @@
     },
     "drillFilterOtherVisuals": true
   },
-  "parentGroupName": "694a1d0b170aa1715757"
+  "parentGroupName": "694a1d0b170aa1715757",
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "11deeda077eb317e3a8b",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "financials"
+              }
+            },
+            "Property": "Country"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "f",
+              "Entity": "financials",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "f"
+                          }
+                        },
+                        "Property": "Country"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'United States of America'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      },
+      {
+        "name": "c849b5315a1e10a0d066",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DAX"
+              }
+            },
+            "Property": "Ranking Context"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
 }

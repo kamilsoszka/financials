@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
+  "name": "1d0b87b2c68249d7b10d",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 3000,
+    "height": 720,
+    "width": 1280,
+    "tabOrder": 1000
+  },
+  "visualGroup": {
+    "displayName": "Canada",
+    "groupMode": "ScaleMode"
+  },
+  "isHidden": true
+}

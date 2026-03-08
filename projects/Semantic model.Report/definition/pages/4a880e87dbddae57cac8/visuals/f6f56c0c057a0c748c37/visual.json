@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
   "name": "f6f56c0c057a0c748c37",
   "position": {
     "x": 393,
@@ -7,7 +7,7 @@
     "z": 2000,
     "height": 144,
     "width": 144,
-    "tabOrder": 11002
+    "tabOrder": 1000
   },
   "visual": {
     "visualType": "donutChart",
@@ -135,5 +135,23 @@
     },
     "drillFilterOtherVisuals": true
   },
-  "parentGroupName": "694a1d0b170aa1715757"
+  "parentGroupName": "694a1d0b170aa1715757",
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "53ff0df05db5b8501638",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DAX"
+              }
+            },
+            "Property": "Rank"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
 }

@@ -1,10 +1,10 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
   "name": "7a260cecdc22e08ad7a7",
   "position": {
     "x": 0,
     "y": 0,
-    "z": 8000,
+    "z": 1000,
     "height": 90,
     "width": 90,
     "tabOrder": 8000
@@ -79,7 +79,7 @@
             "type": {
               "expr": {
                 "Literal": {
-                  "Value": "'PageNavigation'"
+                  "Value": "'Bookmark'"
                 }
               }
             },
@@ -94,6 +94,13 @@
               "expr": {
                 "Literal": {
                   "Value": "'Germany'"
+                }
+              }
+            },
+            "bookmark": {
+              "expr": {
+                "Literal": {
+                  "Value": "'b3dcff16b9de60928521'"
                 }
               }
             }

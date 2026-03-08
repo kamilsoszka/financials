@@ -978,6 +978,17 @@ table DAX
 		displayFolder: 🔧 Dynamic Calculations
 		lineageTag: ec09321e-883e-4df2-b488-178d4259777a
 
+	measure Measure =
+			
+			RANKX (
+			        ALL ( financials[Country] ),
+			        [Dynamic Measure],
+			        ,
+			        DESC
+			    )
+		formatString: 0
+		lineageTag: 14bcfb4e-9761-477d-af9d-79df7b911909
+
 	column Value
 		isHidden
 		lineageTag: 22760aad-023c-4804-95f4-ce79d2b223c9

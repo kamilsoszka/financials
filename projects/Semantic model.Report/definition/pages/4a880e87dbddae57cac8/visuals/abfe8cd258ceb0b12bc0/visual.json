@@ -1,10 +1,10 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
   "name": "abfe8cd258ceb0b12bc0",
   "position": {
     "x": 166,
     "y": 50,
-    "z": 10000,
+    "z": 1000,
     "height": 65,
     "width": 160,
     "tabOrder": 10000
@@ -164,5 +164,23 @@
     },
     "drillFilterOtherVisuals": true
   },
-  "parentGroupName": "505e203e0511250dec41"
+  "parentGroupName": "505e203e0511250dec41",
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "db15ba2facd470ac018e",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "calendar"
+              }
+            },
+            "Property": "Year Month"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
 }
