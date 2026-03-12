@@ -3,7 +3,7 @@
   "name": "b148636d35d055bc88b5",
   "displayName": "Custom Tooltip",
   "displayOption": "ActualSize",
-  "height": 240,
+  "height": 190,
   "width": 320,
   "visibility": "HiddenInViewMode",
   "type": "Tooltip"
