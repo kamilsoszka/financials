@@ -1,0 +1,11 @@
+expression TableProfile_financials =
+		let
+		    Source = Table.Profile(financials)
+		in
+		    Source
+	lineageTag: d279b819-18ea-4fcc-a645-04f8cc5c9e8a
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
